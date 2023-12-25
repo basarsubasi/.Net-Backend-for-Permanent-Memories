@@ -8,8 +8,8 @@ public class Item
     [Key]
     public Guid GUID { get; set; }
     public ItemType ItemType { get; set; }
-    public byte[]? TitleImage { get; set; }
-    public List<byte[]> AdditionalImages { get; set; } = new List<byte[]>();
+    public string? TitleImageUrl { get; set; }
+    public  List<string> AdditionalImageUrls { get; set; } = new List<string>();
     public string Title { get; set; }
     public string? Description { get; set; }
     public int Quantity { get; set; }

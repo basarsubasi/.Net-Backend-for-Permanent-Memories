@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231225160920_Migration2")]
+    partial class Migration2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,7 +31,7 @@ namespace WebApplication1.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AdditionalImageUrls")
+                    b.Property<string>("AdditionalImages")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -61,9 +64,8 @@ namespace WebApplication1.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TitleImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("TitleImage")
+                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("GUID");
 
@@ -95,8 +97,8 @@ namespace WebApplication1.Migrations
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("0ad5f087-44ac-4489-bd34-5551db859bdb"),
-                            AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
+                            GUID = new Guid("274a7041-3aaf-41f5-8da5-23d69235feb7"),
+                            AdditionalImages = "[]",
                             Brand = "Ilford",
                             Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",
                             IsAvailable = true,
@@ -104,7 +106,6 @@ namespace WebApplication1.Migrations
                             Price = 10.99m,
                             Quantity = 400,
                             Title = "Kodak Portra 400",
-                            TitleImageUrl = "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",
                             FilmColorState = 0,
                             FilmExposure = 36,
                             FilmISO = 400,

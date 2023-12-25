@@ -279,3 +279,4 @@ C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\ref
 C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\WebApplication1.pdb
 C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\WebApplication1.genruntimeconfig.cache
 C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\ref\WebApplication1.dll
+C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\WebApplication1.sourcelink.json

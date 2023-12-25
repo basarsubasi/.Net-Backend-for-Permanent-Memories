@@ -92,6 +92,107 @@ public IActionResult SearchItems(
     }
 }
 
+
+[HttpGet("getTitleImage/{guid}")]
+public async Task<IActionResult> GetTitleImageByGuid(Guid guid)
+{
+    try
+    {
+        // Retrieve the item based on the provided GUID
+        var item = await _dbContext.Items.FirstOrDefaultAsync(i => i.GUID == guid);
+
+        if (item == null)
+        {
+            return NotFound($"Item with GUID {guid} not found");
+        }
+
+        // Check if the item has an image URL
+        if (string.IsNullOrEmpty(item.TitleImageUrl))
+        {
+            return NotFound($"Image not found for item with GUID {guid}");
+        }
+
+        // Fetch the image directly from the URL
+        using (var httpClient = new HttpClient())
+        {
+            var imageBytes = await httpClient.GetByteArrayAsync(item.TitleImageUrl);
+
+            if (imageBytes.Length == 0)
+            {
+                return NotFound($"Image not found for item with GUID {guid}");
+            }
+
+            return File(imageBytes, "image/jpeg"); // Adjust content type as needed
+        }
+    }
+    catch (Exception)
+    {
+        // Log the exception
+        return StatusCode(500, "Internal Server Error");
+    }
+}
+
+[HttpGet("getAdditionalImage/{guid}")]
+public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int index)
+{
+    try
+    {
+        // Retrieve the item based on the provided GUID
+        var item = await _dbContext.Items.FirstOrDefaultAsync(i => i.GUID == guid);
+
+        if (item == null)
+        {
+            return NotFound($"Item with GUID {guid} not found");
+        }
+
+        // Check if the item has additional images
+        if (item.AdditionalImageUrls == null || item.AdditionalImageUrls.Count == 0)
+        {
+            return NotFound($"No additional images found for item with GUID {guid}");
+        }
+
+        // Validate the index parameter
+        if (index < 0 || index >= item.AdditionalImageUrls.Count)
+        {
+            return BadRequest("Invalid index parameter");
+        }
+
+        // Fetch the specified additional image directly from the URL
+        using (var httpClient = new HttpClient())
+        {
+            try
+            {
+                var imageUrl = item.AdditionalImageUrls[index];
+                var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+
+                if (imageBytes.Length > 0)
+                {
+                    return File(imageBytes, "image/jpeg"); // Adjust content type as needed
+                }
+                else
+                {
+                    return NotFound($"Image not found for item with GUID {guid} at index {index}");
+                }
+            }
+            catch (Exception)
+            {
+                // Log the exception and return an error response
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+    }
+    catch (Exception)
+    {
+        // Log the exception
+        return StatusCode(500, "Internal Server Error");
+    }
+}
+
+
+
+
+
+
 [HttpGet("{guid}")]
 public IActionResult GetItemByGuid(Guid guid)
 {
@@ -226,10 +327,13 @@ public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO create
                             Price = ItemDetails.Price > 0 ? ItemDetails.Price : 0.0m,
                             Brand = ItemDetails.Brand ?? "Default Brand",
                             IsAvailable = ItemDetails.IsAvailable,
+                            TitleImageUrl = ItemDetails.TitleImageUrl ?? "Default Title Image URL",
+                            AdditionalImageUrls = ItemDetails.AdditionalImageUrls ?? new List<string>(),
                             FilmColorState = filmDetails.FilmColorState,
                             FilmSize = filmDetails.FilmSize,
                             FilmISO = filmDetails.FilmISO,
                             FilmExposure = filmDetails.FilmExposure
+
                             // Set other film properties as needed
                         };
 
@@ -296,210 +400,13 @@ public IActionResult DeleteItems(
         return StatusCode(500, "Internal Server Error");
     }
 }
-
-
-
-
-
-
-    // Common endpoint for all items to upload an image
-    [HttpPost("uploadTitleImage/{guid}")]
-    public IActionResult UploadImage(Guid guid, [FromBody] string imagePath)
-    {
-         try
-    {
-        // Validate the image path or perform any necessary checks
-
-        byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
-
-        var item = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
-
-        if (item == null)
-        {
-            return NotFound("Item not found");
-        }
-
-        // Add the additional image data to the list
-        item.TitleImage=imageBytes;
-
-        _dbContext.SaveChanges();
-
-        return Ok("Title image uploaded successfully");
-    }
-    catch (Exception)
-    {
-        // Log the exception
-        return StatusCode(500, "Internal Server Error");
-    }
-
-
-
-    }
-
-    [HttpPost("uploadAdditionalImage/{guid}")]
-public IActionResult UploadAdditionalImage(Guid guid, [FromBody] string imagePath)
-{
-    try
-    {
-        // Validate the image path or perform any necessary checks
-
-        byte[] imageBytes = System.IO.File.ReadAllBytes(imagePath);
-
-        // Assuming you have an Item entity with a property AdditionalImages as List<byte[]>
-        var item = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
-
-        if (item == null)
-        {
-            return NotFound("Item not found");
-        }
-
-        // Add the additional image data to the list
-        item.AdditionalImages.Add(imageBytes);
-
-        _dbContext.SaveChanges();
-
-        return Ok("Additional image uploaded successfully");
-    }
-    catch (Exception)
-    {
-        // Log the exception
-        return StatusCode(500, "Internal Server Error");
-    }
-}
-
-    // GET: api/items/getTitleImage/{guid}
-    [HttpGet("getTitleImage/{guid}")]
-    public IActionResult GetTitleImage(Guid guid)
-    {
-        try
-        {
-            var item = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
-
-            if (item == null)
-            {
-                return NotFound("Item not found");
-            }
-
-            if (item.TitleImage == null)
-            {
-                return NotFound("Title image not available for this item");
-            }
-
-            return File(item.TitleImage, "image/png"); // Assuming the image type is PNG
-        }
-        catch (Exception)
-        {
-            // Log the exception
-            return StatusCode(500, "Internal Server Error");
-        }
-    }
-
     
+    }
+    }   
+
+
+
+
 
 
     
-
-    [HttpGet("getAdditionalImage/{guid}/{index}")]
-public IActionResult GetAdditionalImage(Guid guid, int index)
-{
-    try
-    {
-        var item = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
-
-        if (item == null || index < 0 || index >= item.AdditionalImages.Count)
-        {
-            return NotFound("Image not found");
-        }
-
-        // Retrieve the specific additional image by index
-        var imageBytes = item.AdditionalImages[index];
-
-        // Determine the content type based on the image format (e.g., "image/jpeg" or "image/png")
-        var contentType = "image/png"; // You may need to adjust this based on your actual image format
-
-        // Return the image data with the appropriate content type
-        return File(imageBytes, contentType);
-    }
-    catch (Exception)
-    {
-        // Log the exception
-        return StatusCode(500, "Internal Server Error");
-    }
-    
-}
-
-// DELETE: api/items/deleteTitleImage/{guid}
-    [HttpDelete("deleteTitleImage/{guid}")]
-    public IActionResult DeleteTitleImage(Guid guid)
-    {
-        try
-        {
-            var itemToDeleteImage = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
-
-            if (itemToDeleteImage == null)
-            {
-                return NotFound("Item not found");
-            }
-            if (itemToDeleteImage.TitleImage == null)
-            {
-                return NotFound("There is no title image to delete");
-            }
-
-            // Delete the title image
-            itemToDeleteImage.TitleImage = null;
-
-            _dbContext.SaveChanges();
-
-            return Ok("Title image deleted successfully");
-        }
-        catch (Exception)
-        {
-            // Log the exception
-            return StatusCode(500, "Internal Server Error");
-        }
-    }
-
-    // DELETE: api/items/deleteAdditionalImage/{guid}/{index}
-    [HttpDelete("deleteAdditionalImage/{guid}/{index}")]
-    public IActionResult DeleteAdditionalImage(Guid guid, int index)
-    {
-        try
-        {
-            var itemToDeleteImage = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
-
-            if (itemToDeleteImage == null)
-            {
-                return NotFound("Item not found");
-            }
-
-            // Check if the index is within the range of AdditionalImages
-            if (index >= 0 && index < itemToDeleteImage.AdditionalImages.Count)
-            {
-                // Delete the additional image at the specified index
-                itemToDeleteImage.AdditionalImages.RemoveAt(index);
-
-                _dbContext.SaveChanges();
-
-                return Ok($"Additional image at index {index} deleted successfully");
-            }
-            if (itemToDeleteImage.AdditionalImages.Count==0)
-            {
-                return NotFound("There is no additional image to delete");
-            }
-
-            else 
-            {
-                return BadRequest("Invalid index");
-            }
-        }
-        catch (Exception)
-        {
-            // Log the exception
-            return StatusCode(500, "Internal Server Error");
-        }
-    }
-
-  
-}
-
-}

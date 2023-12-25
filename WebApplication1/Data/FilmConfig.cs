@@ -22,6 +22,8 @@ namespace WebApplication1.Data
             builder.Property(f => f.Price).IsRequired();
             builder.Property(f => f.Brand).IsRequired();
             builder.Property(f => f.IsAvailable).IsRequired();
+            builder.Property(f => f.TitleImageUrl).IsRequired();
+            builder.Property(f => f.AdditionalImageUrls).IsRequired();
 
              // Film characteristics
         
@@ -42,6 +44,13 @@ namespace WebApplication1.Data
                     Price = 10.99m,
                     Brand = "Ilford",
                     IsAvailable = true,
+                    TitleImageUrl = "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",
+                    AdditionalImageUrls = new List<string>
+                    {
+                        "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",
+                        "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",
+                        "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg"
+                    },
                     FilmColorState = FilmColorState.BlackAndWhite,
                     FilmSize = FilmSize._35mm,
                     FilmISO = FilmISO.ISO400,
