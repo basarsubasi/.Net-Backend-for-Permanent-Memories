@@ -23,10 +23,9 @@ public class ItemController : ControllerBase
     }
 
 
-
-     [HttpGet("searchItems")]
+[HttpGet("searchItems")]
 public IActionResult SearchItems(
-    [FromQuery] bool? IWantToFilter = false,
+    [FromQuery] bool IWantToFilter = false,
     [FromQuery] ItemType? itemType = null,
     [FromQuery] Guid? guid = null,
     [FromQuery] string? title = null,
@@ -39,18 +38,22 @@ public IActionResult SearchItems(
     {
         IQueryable<Item> itemsQuery = _dbContext.Items;
 
-        // Apply IWantToFilters based on query parameters if IWantToFilter is true
-        if (IWantToFilter == true)
+        // Apply filters based on query parameters if IWantToFilter is true
+        if (IWantToFilter)
         {
             if (itemType.HasValue)
             {
                 itemsQuery = itemsQuery.Where(item => item.ItemType == itemType);
             }
 
+            if (guid.HasValue)
+            {
+                itemsQuery = itemsQuery.Where(item => item.GUID == guid);
+            }
 
             if (!string.IsNullOrEmpty(title))
             {
-                itemsQuery = itemsQuery.Where(item => item.Title != null && item.Title.ToUpper().Contains(title.ToUpper()));
+                itemsQuery = itemsQuery.Where(item => item.Title != null && item.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
             }
 
             if (isAvailable.HasValue)
@@ -70,27 +73,37 @@ public IActionResult SearchItems(
 
             if (!string.IsNullOrEmpty(brand))
             {
-                // Assuming Brand is a property in the Item entity
-                itemsQuery = itemsQuery.Where(item => item.Brand != null && item.Brand.ToUpper().Contains(brand.ToUpper()));
+                itemsQuery = itemsQuery.Where(item => item.Brand != null && item.Brand.Contains(brand, StringComparison.OrdinalIgnoreCase));
             }
         }
 
         // Execute the query and return the results
-        var items = itemsQuery.ToList();
-
-        if (items.Count == 0)
-        {
-            return NotFound("No items found matching the search criteria");
-        }
+        var items = itemsQuery
+            .Select(item => new
+            {
+                item.Title,
+                item.Description,
+                item.Quantity,
+                item.Price,
+                item.Brand,
+                item.IsAvailable,
+                item.GUID,
+                item.ItemType,
+            })
+            .ToList();
 
         return Ok(items);
     }
-    catch (Exception)
+    catch (Exception ex)
     {
         // Log the exception
+        Console.WriteLine($"Error in SearchItems: {ex}");
         return StatusCode(500, "Internal Server Error");
     }
 }
+
+
+
 
 
 [HttpGet("getTitleImage/{guid}")]
@@ -246,6 +259,8 @@ public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
             itemToUpdate.Price = ItemDetails.Price > 0 ? ItemDetails.Price : itemToUpdate.Price;
             itemToUpdate.Brand = editItemDTO.ItemDetails.Brand ?? itemToUpdate.Brand;
             itemToUpdate.IsAvailable = editItemDTO.ItemDetails.IsAvailable;
+            itemToUpdate.TitleImageUrl = editItemDTO.ItemDetails.TitleImageUrl ?? itemToUpdate.TitleImageUrl;
+            itemToUpdate.AdditionalImageUrls = editItemDTO.ItemDetails.AdditionalImageUrls ?? itemToUpdate.AdditionalImageUrls;
 
         }
        
