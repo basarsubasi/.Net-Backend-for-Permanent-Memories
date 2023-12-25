@@ -24,7 +24,7 @@ public class ItemController : ControllerBase
 
 
 [HttpGet("searchItems")]
-public IActionResult SearchItems(
+public async Task<IActionResult> SearchItems(
     [FromQuery] bool IWantToFilter = false,
     [FromQuery] ItemType? itemType = null,
     [FromQuery] Guid? guid = null,
@@ -38,7 +38,6 @@ public IActionResult SearchItems(
     {
         IQueryable<Item> itemsQuery = _dbContext.Items;
 
-        // Apply filters based on query parameters if IWantToFilter is true
         if (IWantToFilter)
         {
             if (itemType.HasValue)
@@ -53,8 +52,7 @@ public IActionResult SearchItems(
 
             if (!string.IsNullOrEmpty(title))
             {
-                itemsQuery = itemsQuery.Where(item => item.Title != null && item.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
-            }
+                itemsQuery = itemsQuery.Where(item => item.Title != null && item.Title.ToUpper().Contains(title.ToUpper()));            }
 
             if (isAvailable.HasValue)
             {
@@ -73,12 +71,11 @@ public IActionResult SearchItems(
 
             if (!string.IsNullOrEmpty(brand))
             {
-                itemsQuery = itemsQuery.Where(item => item.Brand != null && item.Brand.Contains(brand, StringComparison.OrdinalIgnoreCase));
+                 itemsQuery = itemsQuery.Where(item => item.Brand != null && item.Brand.ToUpper().Contains(brand.ToUpper()));
             }
         }
 
-        // Execute the query and return the results
-        var items = itemsQuery
+        var items = await itemsQuery
             .Select(item => new
             {
                 item.Title,
@@ -90,13 +87,12 @@ public IActionResult SearchItems(
                 item.GUID,
                 item.ItemType,
             })
-            .ToList();
+            .ToListAsync();
 
         return Ok(items);
     }
     catch (Exception ex)
     {
-        // Log the exception
         Console.WriteLine($"Error in SearchItems: {ex}");
         return StatusCode(500, "Internal Server Error");
     }
@@ -111,7 +107,6 @@ public async Task<IActionResult> GetTitleImageByGuid(Guid guid)
 {
     try
     {
-        // Retrieve the item based on the provided GUID
         var item = await _dbContext.Items.FirstOrDefaultAsync(i => i.GUID == guid);
 
         if (item == null)
@@ -119,28 +114,34 @@ public async Task<IActionResult> GetTitleImageByGuid(Guid guid)
             return NotFound($"Item with GUID {guid} not found");
         }
 
-        // Check if the item has an image URL
         if (string.IsNullOrEmpty(item.TitleImageUrl))
         {
             return NotFound($"Image not found for item with GUID {guid}");
         }
 
-        // Fetch the image directly from the URL
         using (var httpClient = new HttpClient())
         {
-            var imageBytes = await httpClient.GetByteArrayAsync(item.TitleImageUrl);
-
-            if (imageBytes.Length == 0)
+            try
             {
-                return NotFound($"Image not found for item with GUID {guid}");
-            }
+                var imageBytes = await httpClient.GetByteArrayAsync(item.TitleImageUrl);
 
-            return File(imageBytes, "image/jpeg"); // Adjust content type as needed
+                if (imageBytes.Length > 0)
+                {
+                    return File(imageBytes, "image/jpeg");
+                }
+                else
+                {
+                    return NotFound($"Image not found for item with GUID {guid}");
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Server Error");
+            }
         }
     }
     catch (Exception)
     {
-        // Log the exception
         return StatusCode(500, "Internal Server Error");
     }
 }
@@ -150,7 +151,6 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
 {
     try
     {
-        // Retrieve the item based on the provided GUID
         var item = await _dbContext.Items.FirstOrDefaultAsync(i => i.GUID == guid);
 
         if (item == null)
@@ -158,19 +158,16 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
             return NotFound($"Item with GUID {guid} not found");
         }
 
-        // Check if the item has additional images
         if (item.AdditionalImageUrls == null || item.AdditionalImageUrls.Count == 0)
         {
             return NotFound($"No additional images found for item with GUID {guid}");
         }
 
-        // Validate the index parameter
         if (index < 0 || index >= item.AdditionalImageUrls.Count)
         {
             return BadRequest("Invalid index parameter");
         }
 
-        // Fetch the specified additional image directly from the URL
         using (var httpClient = new HttpClient())
         {
             try
@@ -180,7 +177,7 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
 
                 if (imageBytes.Length > 0)
                 {
-                    return File(imageBytes, "image/jpeg"); // Adjust content type as needed
+                    return File(imageBytes, "image/jpeg");
                 }
                 else
                 {
@@ -189,14 +186,12 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
             }
             catch (Exception)
             {
-                // Log the exception and return an error response
                 return StatusCode(500, "Internal Server Error");
             }
         }
     }
     catch (Exception)
     {
-        // Log the exception
         return StatusCode(500, "Internal Server Error");
     }
 }
