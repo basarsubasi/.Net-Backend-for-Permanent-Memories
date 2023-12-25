@@ -23,6 +23,8 @@ public class ItemController : ControllerBase
     }
 
 
+
+
 [HttpGet("searchItems")]
 public async Task<IActionResult> SearchItems(
     [FromQuery] bool IWantToFilter = false,
@@ -32,7 +34,9 @@ public async Task<IActionResult> SearchItems(
     [FromQuery] bool? isAvailable = null,
     [FromQuery] decimal? minPrice = null,
     [FromQuery] decimal? maxPrice = null,
-    [FromQuery] string? brand = null)
+    [FromQuery] string? brand = null,
+    [FromQuery] string? sortBy = null, // Sorting parameter
+    [FromQuery] bool descending = false) // Sorting order
 {
     try
     {
@@ -45,14 +49,10 @@ public async Task<IActionResult> SearchItems(
                 itemsQuery = itemsQuery.Where(item => item.ItemType == itemType);
             }
 
-            if (guid.HasValue)
-            {
-                itemsQuery = itemsQuery.Where(item => item.GUID == guid);
-            }
-
             if (!string.IsNullOrEmpty(title))
             {
-                itemsQuery = itemsQuery.Where(item => item.Title != null && item.Title.ToUpper().Contains(title.ToUpper()));            }
+                itemsQuery = itemsQuery.Where(item => item.Title != null && item.Title.ToUpper().Contains(title.ToUpper()));
+            }
 
             if (isAvailable.HasValue)
             {
@@ -71,8 +71,14 @@ public async Task<IActionResult> SearchItems(
 
             if (!string.IsNullOrEmpty(brand))
             {
-                 itemsQuery = itemsQuery.Where(item => item.Brand != null && item.Brand.ToUpper().Contains(brand.ToUpper()));
+                itemsQuery = itemsQuery.Where(item => item.Brand != null && item.Brand.ToUpper().Contains(brand.ToUpper()));
             }
+        }
+
+        // Apply sorting
+        if (!string.IsNullOrEmpty(sortBy))
+        {
+            itemsQuery = ApplySorting(itemsQuery, sortBy, descending);
         }
 
         var items = await itemsQuery
@@ -91,11 +97,40 @@ public async Task<IActionResult> SearchItems(
 
         return Ok(items);
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-        Console.WriteLine($"Error in SearchItems: {ex}");
+
         return StatusCode(500, "Internal Server Error");
     }
+}
+
+private IQueryable<Item> ApplySorting(IQueryable<Item> query, string sortBy, bool descending)
+{
+    
+    switch (sortBy.ToLower())
+    {
+    
+        case "title":
+            query = descending ? query.OrderByDescending(item => item.Title) : query.OrderBy(item => item.Title);
+            break;
+        case "price":
+            query = descending ? query.OrderByDescending(item => item.Price) : query.OrderBy(item => item.Price);
+            break;
+        case "brand":
+            query = descending ? query.OrderByDescending(item => item.Brand) : query.OrderBy(item => item.Brand);
+            break;
+        case "quantity":
+            query = descending ? query.OrderByDescending(item => item.Quantity) : query.OrderBy(item => item.Quantity);
+            break;
+    
+        // Add more cases for other properties you want to support for sorting
+        default:
+            // Handle invalid sortBy parameter
+            break;
+    }
+    
+
+    return query;
 }
 
 
