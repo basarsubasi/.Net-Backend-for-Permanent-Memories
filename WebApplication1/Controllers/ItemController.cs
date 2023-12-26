@@ -28,9 +28,8 @@ public class ItemController : ControllerBase
 
 [HttpGet("searchItems")]
 public async Task<IActionResult> SearchItems(
-    [FromQuery] bool IWantToFilter = false,
+    [FromQuery] bool IWantToFilter = true,
     [FromQuery] ItemType? itemType = null,
-    [FromQuery] Guid? guid = null,
     [FromQuery] string? title = null,
     [FromQuery] bool? isAvailable = null,
     [FromQuery] decimal? minPrice = null,
@@ -276,8 +275,8 @@ public IActionResult GetItemByGuid(Guid guid)
 
 
 
-[HttpPut("editItem/{guid}")]
-public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
+[HttpPut("editFilm/{guid}")]
+public IActionResult EditFilm(Guid guid, [FromBody] EditItemDTO editItemDTO)
 {
     try
     {
@@ -286,66 +285,91 @@ public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
             return BadRequest(ModelState);
         }
 
-        var itemToUpdate = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
+        var filmToUpdate = _dbContext.Items.OfType<Film>().FirstOrDefault(f => f.GUID == guid);
 
-        if (itemToUpdate == null)
+        if (filmToUpdate == null)
         {
-            return NotFound("Item not found");
+            return NotFound("Film not found");
         }
-        var ItemDetails = editItemDTO.ItemDetails;
 
-        if (ItemDetails != null)
+        var itemDetails = editItemDTO.ItemDetails;
+        var filmDetails = editItemDTO.FilmDetails;
+
+        if (itemDetails != null)
         {
             // Update common properties
-            itemToUpdate.Title = ItemDetails.Title ?? itemToUpdate.Title;
-            itemToUpdate.Description = ItemDetails.Description ?? itemToUpdate.Description;
-            itemToUpdate.Quantity = ItemDetails.Quantity > 0 ? ItemDetails.Quantity : itemToUpdate.Quantity;
-            itemToUpdate.Price = ItemDetails.Price > 0 ? ItemDetails.Price : itemToUpdate.Price;
-            itemToUpdate.Brand = editItemDTO.ItemDetails.Brand ?? itemToUpdate.Brand;
-            itemToUpdate.IsAvailable = editItemDTO.ItemDetails.IsAvailable;
-            itemToUpdate.TitleImageUrl = editItemDTO.ItemDetails.TitleImageUrl ?? itemToUpdate.TitleImageUrl;
-            itemToUpdate.AdditionalImageUrls = editItemDTO.ItemDetails.AdditionalImageUrls ?? itemToUpdate.AdditionalImageUrls;
+            filmToUpdate.Title = itemDetails.Title ?? filmToUpdate.Title;
+            filmToUpdate.Description = itemDetails.Description ?? filmToUpdate.Description;
+            filmToUpdate.Quantity = itemDetails.Quantity > 0 ? itemDetails.Quantity : filmToUpdate.Quantity;
+            filmToUpdate.Price = itemDetails.Price > 0 ? itemDetails.Price : filmToUpdate.Price;
+            filmToUpdate.Brand = itemDetails.Brand ?? filmToUpdate.Brand;
+            filmToUpdate.IsAvailable = itemDetails.IsAvailable;
+            filmToUpdate.TitleImageUrl = itemDetails.TitleImageUrl ?? filmToUpdate.TitleImageUrl;
+            filmToUpdate.AdditionalImageUrls = itemDetails.AdditionalImageUrls ?? filmToUpdate.AdditionalImageUrls;
 
+            // Update film-specific properties
+            filmToUpdate.FilmColorState = editItemDTO.FilmDetails.FilmColorState;
+            filmToUpdate.FilmFormat = editItemDTO.FilmDetails.FilmFormat;
+            filmToUpdate.FilmISO = editItemDTO.FilmDetails.FilmISO;
+            filmToUpdate.FilmExposure = editItemDTO.FilmDetails.FilmExposure;
         }
-       
-       // Update specific details based on item type
-switch (editItemDTO.ItemDetails.ItemType)
-{
-    case ItemType.Film:
-        // Your existing film-specific updates here
-        var filmDetails = editItemDTO.FilmDetails;
-        var editedFilm = itemToUpdate as Film;
-        if (filmDetails != null && editedFilm != null)
-        {
-            editedFilm.FilmColorState = filmDetails.FilmColorState;
-            editedFilm.FilmFormat = filmDetails.FilmFormat;
-            editedFilm.FilmISO = filmDetails.FilmISO;
-            editedFilm.FilmExposure = filmDetails.FilmExposure;
-        }
-        break;
-
-    case ItemType.Camera:
-        // Your existing camera-specific updates here
-        var cameraDetails = editItemDTO.CameraDetails;
-        var editedCamera = itemToUpdate as Camera;
-        if (cameraDetails != null && editedCamera != null)
-        {
-            
-            editedCamera.CameraFocalLength = cameraDetails.CameraFocalLength;
-            editedCamera.CameraMaxShutterSpeed = cameraDetails.CameraMaxShutterSpeed;
-            editedCamera.CameraMegapixel = cameraDetails.CameraMegapixel;
-            editedCamera.CameraFilmFormat = cameraDetails.CameraFilmFormat;
-        }
-        break;
-
-    default:
-        return BadRequest("Unsupported item type");
-}
-
 
         _dbContext.SaveChanges();
 
-        return Ok("Item updated successfully");
+        return Ok("Film updated successfully");
+    }
+    catch (Exception)
+    {
+        // Log the exception
+        return StatusCode(500, "Internal Server Error");
+    }
+}
+
+
+
+
+[HttpPut("editCamera/{guid}")]
+public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
+{
+    try
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var cameraToUpdate = _dbContext.Items.OfType<Camera>().FirstOrDefault(c => c.GUID == guid);
+
+        if (cameraToUpdate == null)
+        {
+            return NotFound("Camera not found");
+        }
+
+        var itemDetails = editItemDTO.ItemDetails;
+        var cameraDetails = editItemDTO.CameraDetails;
+
+        if (itemDetails != null)
+        {
+            // Update common properties
+            cameraToUpdate.Title = itemDetails.Title ?? cameraToUpdate.Title;
+            cameraToUpdate.Description = itemDetails.Description ?? cameraToUpdate.Description;
+            cameraToUpdate.Quantity = itemDetails.Quantity > 0 ? itemDetails.Quantity : cameraToUpdate.Quantity;
+            cameraToUpdate.Price = itemDetails.Price > 0 ? itemDetails.Price : cameraToUpdate.Price;
+            cameraToUpdate.Brand = itemDetails.Brand ?? cameraToUpdate.Brand;
+            cameraToUpdate.IsAvailable = itemDetails.IsAvailable;
+            cameraToUpdate.TitleImageUrl = itemDetails.TitleImageUrl ?? cameraToUpdate.TitleImageUrl;
+            cameraToUpdate.AdditionalImageUrls = itemDetails.AdditionalImageUrls ?? cameraToUpdate.AdditionalImageUrls;
+
+            // Update camera-specific properties
+            cameraToUpdate.CameraFocalLength = editItemDTO.CameraDetails.CameraFocalLength;
+            cameraToUpdate.CameraMaxShutterSpeed = editItemDTO.CameraDetails.CameraMaxShutterSpeed;
+            cameraToUpdate.CameraMegapixel = editItemDTO.CameraDetails.CameraMegapixel;
+            cameraToUpdate.CameraFilmFormat = editItemDTO.CameraDetails.CameraFilmFormat;
+        }
+
+        _dbContext.SaveChanges();
+
+        return Ok("Camera updated successfully");
     }
     catch (Exception)
     {

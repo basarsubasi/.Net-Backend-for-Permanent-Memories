@@ -2,7 +2,7 @@ namespace WebApplication1.Enums
 {
     public enum ItemType
     {
-        Film,
-        Camera
+        Film=0,
+        Camera=1
     }
 }

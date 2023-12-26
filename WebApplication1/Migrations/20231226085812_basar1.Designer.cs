@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231226085812_basar1")]
+    partial class basar1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,6 +43,11 @@ namespace WebApplication1.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
@@ -64,7 +72,7 @@ namespace WebApplication1.Migrations
 
                     b.ToTable("Items");
 
-                    b.HasDiscriminator<int>("ItemType");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Item");
 
                     b.UseTphMappingStrategy();
                 });
@@ -85,29 +93,12 @@ namespace WebApplication1.Migrations
                     b.Property<int>("CameraMegapixel")
                         .HasColumnType("int");
 
-                    b.HasDiscriminator().HasValue(1);
+                    b.HasDiscriminator().HasValue("Camera");
 
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("0baa3edd-1ec0-4589-8084-9c2e7c5bbc37"),
-                            AdditionalImageUrls = "[\"https://example.com/canon_eos_rebel_t7_1.jpg\",\"https://example.com/canon_eos_rebel_t7_2.jpg\"]",
-                            Brand = "Canon",
-                            Description = "A versatile and affordable entry-level DSLR camera.",
-                            IsAvailable = true,
-                            ItemType = 1,
-                            Price = 499.99m,
-                            Quantity = 100,
-                            Title = "Canon EOS Rebel T7",
-                            TitleImageUrl = "https://example.com/canon_eos_rebel_t7.jpg",
-                            CameraFilmFormat = 35,
-                            CameraFocalLength = 50,
-                            CameraMaxShutterSpeed = 0,
-                            CameraMegapixel = 20
-                        },
-                        new
-                        {
-                            GUID = new Guid("c69c6da7-d5e6-422a-9b24-d4fd033dcafe"),
+                            GUID = new Guid("26eb156d-b6f2-4b61-8601-b9c121ac26ef"),
                             AdditionalImageUrls = "[\"https://example.com/canon_eos_rebel_t7_1.jpg\",\"https://example.com/canon_eos_rebel_t7_2.jpg\"]",
                             Brand = "Canon",
                             Description = "A versatile and affordable entry-level DSLR camera.",
@@ -140,29 +131,12 @@ namespace WebApplication1.Migrations
                     b.Property<int>("FilmISO")
                         .HasColumnType("int");
 
-                    b.HasDiscriminator().HasValue(0);
+                    b.HasDiscriminator().HasValue("Film");
 
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("ebce045a-209f-4357-9c10-94d4e9f2011e"),
-                            AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
-                            Brand = "Ilford",
-                            Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",
-                            IsAvailable = true,
-                            ItemType = 0,
-                            Price = 10.99m,
-                            Quantity = 400,
-                            Title = "Kodak Portra 400",
-                            TitleImageUrl = "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",
-                            FilmColorState = 0,
-                            FilmExposure = 36,
-                            FilmFormat = 35,
-                            FilmISO = 400
-                        },
-                        new
-                        {
-                            GUID = new Guid("c2ff713e-d648-44e1-9e8a-1a3671b33dea"),
+                            GUID = new Guid("3148040e-0a2c-46ec-ac78-bf807e1eb9e9"),
                             AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
                             Brand = "Ilford",
                             Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",

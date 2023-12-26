@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models;
+using System.Reflection;
+
 
 namespace WebApplication1.Data
 {
@@ -17,8 +19,12 @@ namespace WebApplication1.Data
             base.OnModelCreating(modelBuilder);
 
             // Add configurations for all entity types
+            modelBuilder.ApplyConfiguration(new ItemConfig()); // Add this line
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            
             modelBuilder.ApplyConfiguration(new FilmConfig()); // Add this line
             modelBuilder.ApplyConfiguration(new CameraConfig());
+            
             // Add configurations for other entity types if needed
         }
     }

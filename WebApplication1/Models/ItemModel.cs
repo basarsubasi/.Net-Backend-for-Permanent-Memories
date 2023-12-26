@@ -3,7 +3,7 @@ using WebApplication1.Enums;
 using WebApplication1.Models;
 
 namespace WebApplication1.Models;
-public class Item
+public abstract class Item
 { 
     [Key]
     public Guid GUID { get; set; }
