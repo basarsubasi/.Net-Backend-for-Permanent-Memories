@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231226105932_basar13")]
+    partial class basar13
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,7 +101,7 @@ namespace WebApplication1.Migrations
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("b064a7f0-5261-46e0-9080-61feb190b233"),
+                            GUID = new Guid("2e7595d4-3eab-4bc3-8a02-35bdab849a06"),
                             AdditionalImageUrls = "[\"https://example.com/canon_eos_rebel_t7_1.jpg\",\"https://example.com/canon_eos_rebel_t7_2.jpg\"]",
                             Brand = "Canon",
                             Description = "A versatile and affordable entry-level DSLR camera.",
@@ -137,7 +140,7 @@ namespace WebApplication1.Migrations
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("9b573b61-e54f-43fa-a90e-780e1fa578ac"),
+                            GUID = new Guid("9cf548b4-ed83-438b-b3e5-fe3b44e72423"),
                             AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
                             Brand = "Kodak",
                             Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",

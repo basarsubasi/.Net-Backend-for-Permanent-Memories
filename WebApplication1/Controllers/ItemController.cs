@@ -138,62 +138,8 @@ private IQueryable<Item> ApplySorting(IQueryable<Item> query, string sortBy, boo
 
 
 
-
-[HttpGet("getTitleImage/{guid}")]
-public async Task<IActionResult> GetTitleImageByGuid(Guid guid)
-{
-    try
-    {
-        var item = await _dbContext.Items.FirstOrDefaultAsync(i => i.GUID == guid);
-
-        if (item == null)
-        {
-            return NotFound("Item not found");
-        }
-
-        if (string.IsNullOrEmpty(item.TitleImageUrl))
-        {
-            return NotFound("Image not found for item");
-        }
-
-        using (var httpClient = new HttpClient())
-        {
-            try
-            {
-                var imageBytes = await httpClient.GetByteArrayAsync(item.TitleImageUrl);
-
-                if (imageBytes != null && imageBytes.Length > 0)
-                {
-                    return File(imageBytes, "image/jpeg");
-                }
-
-              else
-              {
-                return NotFound($"Image not found for item with GUID {guid}");
-              }
-   
-            }
-
-            catch (HttpRequestException)
-    {
-        // Handle invalid URL exception
-            return NotFound("Invalid image URL for item");
-    }
-            catch (Exception)
-            {
-                return StatusCode(500, "Error fetching image for item");
-            }
-        }
-    }
-    catch (Exception)
-    {
-        return StatusCode(500, "Internal Server Error");
-    }
-}
-
-
-[HttpGet("getAdditionalImage/{guid}")]
-public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int index)
+[HttpGet("getImage/{guid}")]
+public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
 {
     try
     {
@@ -204,38 +150,73 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
             return NotFound($"Item with GUID {guid} not found");
         }
 
-        if (item.AdditionalImageUrls == null || item.AdditionalImageUrls.Count == 0)
+        if (index == -1)
         {
-            return NotFound($"No additional images found for item with GUID {guid}");
-        }
-
-        if (index < 0 || index >= item.AdditionalImageUrls.Count)
-        {
-            return BadRequest("Invalid index parameter");
-        }
-
-    
-            
-
-        using (var httpClient = new HttpClient())
-        {
-            try
+            // Get the title image
+            if (string.IsNullOrEmpty(item.TitleImageUrl))
             {
-                var imageUrl = item.AdditionalImageUrls[index];
-                var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+                return NotFound("Image not found for item");
+            }
 
-                if (imageBytes != null && imageBytes.Length > 0)
+            using (var httpClient = new HttpClient())
+            {
+                try
                 {
-                    return File(imageBytes, "image/jpeg");
+                    var imageBytes = await httpClient.GetByteArrayAsync(item.TitleImageUrl);
+
+                    if (imageBytes != null && imageBytes.Length > 0)
+                    {
+                        return File(imageBytes, "image/jpeg");
+                    }
+                    else
+                    {
+                        return NotFound($"Image not found for item with GUID {guid}");
+                    }
                 }
-                else
+                catch (HttpRequestException)
+                {
+                    // Handle invalid URL exception
+                    return NotFound("Invalid image URL for item");
+                }
+                catch (Exception)
+                {
+                    return StatusCode(500, "Error fetching image for item");
+                }
+            }
+        }
+        else
+        {
+            // Get additional image by index
+            if (item.AdditionalImageUrls == null || item.AdditionalImageUrls.Count == 0)
+            {
+                return NotFound($"No additional images found for item with GUID {guid}");
+            }
+
+            if (index < 0 || index >= item.AdditionalImageUrls.Count)
+            {
+                return BadRequest("Invalid index parameter");
+            }
+
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    var imageUrl = item.AdditionalImageUrls[index];
+                    var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+
+                    if (imageBytes != null && imageBytes.Length > 0)
+                    {
+                        return File(imageBytes, "image/jpeg");
+                    }
+                    else
+                    {
+                        return NotFound($"Image not found for item with GUID {guid} at index {index}");
+                    }
+                }
+                catch (HttpRequestException)
                 {
                     return NotFound($"Image not found for item with GUID {guid} at index {index}");
                 }
-            }
-            catch (HttpRequestException)
-            {
-                return NotFound($"Image not found for item with GUID {guid} at index {index}");
             }
         }
     }
@@ -244,6 +225,7 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
         return StatusCode(500, "Internal Server Error");
     }
 }
+
 
 
 
@@ -388,6 +370,8 @@ public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
 
 
 
+
+
     
 
  [HttpPost("createItem/{itemType}")]
@@ -493,15 +477,19 @@ public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
 
     return BadRequest("Invalid request");
 }
-
-
-[HttpDelete("deleteItems")]
-public IActionResult DeleteItems(
+[HttpDelete("deleteImage")]
+public IActionResult DeleteImage(
     [FromQuery] Guid? guid = null,
-    [FromQuery] ItemType? itemType = null)
+    [FromQuery] int? index = null)
 {
     try
     {
+        // Validate that both guid and index are provided
+        if (!guid.HasValue || !index.HasValue)
+        {
+            return BadRequest("Both GUID and index must be provided");
+        }
+
         IQueryable<Item> itemsToDelete = _dbContext.Items;
 
         // Apply filters based on query parameters
@@ -510,17 +498,38 @@ public IActionResult DeleteItems(
             itemsToDelete = itemsToDelete.Where(item => item.GUID == guid.Value);
         }
 
-        if (itemType.HasValue)
+        // Execute the query to get the items to delete
+        var items = itemsToDelete.ToList();
+
+        if (items.Count == 0)
         {
-            itemsToDelete = itemsToDelete.Where(item => item.ItemType == itemType.Value);
+            return NotFound("No items found for the specified criteria");
         }
 
-        // Execute the query and delete the items
-        var items = itemsToDelete.ToList();
-        _dbContext.Items.RemoveRange(items);
+        foreach (var item in items)
+        {
+            if (index.HasValue && index != -1)
+            {
+                // Soft delete additional image by writing "deletedimage" to the URL
+                if (item.AdditionalImageUrls != null && index >= 0 && index < item.AdditionalImageUrls.Count)
+                {
+                    item.AdditionalImageUrls[index.Value] = "deletedimage";
+                }
+            }
+            else
+            {
+                // Soft delete the title image by writing "deletedimage" to the URL
+                if (!string.IsNullOrEmpty(item.TitleImageUrl))
+                {
+                    item.TitleImageUrl = "deletedimage";
+                }
+            }
+        }
+
+        // Save changes to the database
         _dbContext.SaveChanges();
 
-        return Ok("Items deleted successfully");
+        return Ok("Images soft deleted successfully");
     }
     catch (Exception)
     {
@@ -528,8 +537,22 @@ public IActionResult DeleteItems(
         return StatusCode(500, "Internal Server Error");
     }
 }
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
+
+    
     }   
 
 
