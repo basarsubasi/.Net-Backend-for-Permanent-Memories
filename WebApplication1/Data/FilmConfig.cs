@@ -21,6 +21,7 @@ namespace WebApplication1.Data
             // Price and availability
             builder.Property(f => f.Price).IsRequired();
             builder.Property(f => f.Brand).IsRequired();
+            builder.Property(f => f.ItemBrandId).IsRequired();
             builder.Property(f => f.IsAvailable).IsRequired();
             builder.Property(f => f.ItemType).IsRequired();
             builder.Property(f => f.TitleImageUrl).IsRequired();
@@ -43,7 +44,8 @@ namespace WebApplication1.Data
                     Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",
                     Quantity = 400,
                     Price = 10.99m,
-                    Brand = "Ilford",
+                    Brand = "Kodak",
+                    ItemBrandId = ItemBrandId.kodak,
                     ItemType = ItemType.Film,
                     IsAvailable = true,
                     TitleImageUrl = "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",

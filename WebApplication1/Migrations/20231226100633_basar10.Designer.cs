@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231226100633_basar10")]
+    partial class basar10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,11 +42,6 @@ namespace WebApplication1.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
@@ -72,7 +70,7 @@ namespace WebApplication1.Migrations
 
                     b.ToTable("Items");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Item");
+                    b.HasDiscriminator<int>("ItemType");
 
                     b.UseTphMappingStrategy();
                 });
@@ -93,12 +91,30 @@ namespace WebApplication1.Migrations
                     b.Property<int>("CameraMegapixel")
                         .HasColumnType("int");
 
-                    b.HasDiscriminator().HasValue("Camera");
+                    b.HasDiscriminator().HasValue(1);
 
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("a203c6e9-fded-4a4e-b47a-7e7d0df40f85"),
+                            GUID = new Guid("44e893b8-d58f-4ae4-8a0a-0a4db1db6a36"),
+                            AdditionalImageUrls = "[\"https://example.com/canon_eos_rebel_t7_1.jpg\",\"https://example.com/canon_eos_rebel_t7_2.jpg\"]",
+                            Brand = "Canon",
+                            Description = "A versatile and affordable entry-level DSLR camera.",
+                            IsAvailable = true,
+                            ItemBrandId = 0,
+                            ItemType = 1,
+                            Price = 499.99m,
+                            Quantity = 100,
+                            Title = "Canon EOS Rebel T7",
+                            TitleImageUrl = "https://example.com/canon_eos_rebel_t7.jpg",
+                            CameraFilmFormat = 35,
+                            CameraFocalLength = 50,
+                            CameraMaxShutterSpeed = 0,
+                            CameraMegapixel = 20
+                        },
+                        new
+                        {
+                            GUID = new Guid("23ebb5fa-53aa-4490-9b0a-e1cdd55fe40a"),
                             AdditionalImageUrls = "[\"https://example.com/canon_eos_rebel_t7_1.jpg\",\"https://example.com/canon_eos_rebel_t7_2.jpg\"]",
                             Brand = "Canon",
                             Description = "A versatile and affordable entry-level DSLR camera.",
@@ -132,12 +148,30 @@ namespace WebApplication1.Migrations
                     b.Property<int>("FilmISO")
                         .HasColumnType("int");
 
-                    b.HasDiscriminator().HasValue("Film");
+                    b.HasDiscriminator().HasValue(0);
 
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("f162de78-e765-4331-bcc6-36f4c153e7cb"),
+                            GUID = new Guid("16358130-fc35-41aa-9829-0dcd444c9296"),
+                            AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
+                            Brand = "Kodak",
+                            Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",
+                            IsAvailable = true,
+                            ItemBrandId = 2,
+                            ItemType = 0,
+                            Price = 10.99m,
+                            Quantity = 400,
+                            Title = "Kodak Portra 400",
+                            TitleImageUrl = "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",
+                            FilmColorState = 0,
+                            FilmExposure = 36,
+                            FilmFormat = 35,
+                            FilmISO = 400
+                        },
+                        new
+                        {
+                            GUID = new Guid("57de20c2-77a3-4125-a534-73f0580aae24"),
                             AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
                             Brand = "Kodak",
                             Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",

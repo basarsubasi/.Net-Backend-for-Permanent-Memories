@@ -17,6 +17,7 @@ public abstract class Item
             // Price and availability
     public decimal Price { get; set; }
     public string Brand { get; set; }
+    public ItemBrandId ItemBrandId { get; set; }
     public bool IsAvailable { get; set; }
 
 

@@ -28,13 +28,14 @@ public class ItemController : ControllerBase
 
 [HttpGet("searchItems")]
 public async Task<IActionResult> SearchItems(
-    [FromQuery] bool IWantToFilter = true,
+    [FromQuery] bool IWantToFilter = false,
     [FromQuery] ItemType? itemType = null,
     [FromQuery] string? title = null,
     [FromQuery] bool? isAvailable = null,
     [FromQuery] decimal? minPrice = null,
     [FromQuery] decimal? maxPrice = null,
     [FromQuery] string? brand = null,
+    [FromQuery] ItemBrandId? itemBrandId = null,
     [FromQuery] string? sortBy = null, // Sorting parameter
     [FromQuery] bool descending = false) // Sorting order
 {
@@ -73,6 +74,11 @@ public async Task<IActionResult> SearchItems(
             {
                 itemsQuery = itemsQuery.Where(item => item.Brand != null && item.Brand.ToUpper().Contains(brand.ToUpper()));
             }
+            if (itemBrandId.HasValue)
+            {
+                itemsQuery = itemsQuery.Where(item => item.ItemBrandId == itemBrandId);
+            }
+
         }
 
         // Apply sorting
@@ -303,6 +309,7 @@ public IActionResult EditFilm(Guid guid, [FromBody] EditItemDTO editItemDTO)
             filmToUpdate.Quantity = itemDetails.Quantity > 0 ? itemDetails.Quantity : filmToUpdate.Quantity;
             filmToUpdate.Price = itemDetails.Price > 0 ? itemDetails.Price : filmToUpdate.Price;
             filmToUpdate.Brand = itemDetails.Brand ?? filmToUpdate.Brand;
+            filmToUpdate.ItemBrandId = editItemDTO.ItemDetails.ItemBrandId; // Update ItemBrandId enum
             filmToUpdate.IsAvailable = itemDetails.IsAvailable;
             filmToUpdate.TitleImageUrl = itemDetails.TitleImageUrl ?? filmToUpdate.TitleImageUrl;
             filmToUpdate.AdditionalImageUrls = itemDetails.AdditionalImageUrls ?? filmToUpdate.AdditionalImageUrls;
@@ -356,6 +363,7 @@ public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
             cameraToUpdate.Quantity = itemDetails.Quantity > 0 ? itemDetails.Quantity : cameraToUpdate.Quantity;
             cameraToUpdate.Price = itemDetails.Price > 0 ? itemDetails.Price : cameraToUpdate.Price;
             cameraToUpdate.Brand = itemDetails.Brand ?? cameraToUpdate.Brand;
+            cameraToUpdate.ItemBrandId = editItemDTO.ItemDetails.ItemBrandId; // Update ItemBrandId enum
             cameraToUpdate.IsAvailable = itemDetails.IsAvailable;
             cameraToUpdate.TitleImageUrl = itemDetails.TitleImageUrl ?? cameraToUpdate.TitleImageUrl;
             cameraToUpdate.AdditionalImageUrls = itemDetails.AdditionalImageUrls ?? cameraToUpdate.AdditionalImageUrls;
@@ -415,6 +423,7 @@ public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
                             Quantity = filmItemDetails.Quantity > 0 ? filmItemDetails.Quantity : 1,
                             Price = filmItemDetails.Price > 0 ? filmItemDetails.Price : 0.0m,
                             Brand = filmItemDetails.Brand ?? "Default Brand",
+                            ItemBrandId = filmItemDetails.ItemBrandId,
                             IsAvailable = filmItemDetails.IsAvailable,
                             ItemType = filmItemDetails.ItemType = ItemType.Film,
                             TitleImageUrl = filmItemDetails.TitleImageUrl ?? "Default Title Image URL",
@@ -448,6 +457,7 @@ public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
                             Quantity = cameraItemDetails.Quantity > 0 ? cameraItemDetails.Quantity : 1,
                             Price = cameraItemDetails.Price > 0 ? cameraItemDetails.Price : 0.0m,
                             Brand = cameraItemDetails.Brand ?? "Default Brand",
+                            ItemBrandId = cameraItemDetails.ItemBrandId,
                             IsAvailable = cameraItemDetails.IsAvailable,
                             ItemType = cameraItemDetails.ItemType  = ItemType.Camera,
                             TitleImageUrl = cameraItemDetails.TitleImageUrl ?? "Default Title Image URL",

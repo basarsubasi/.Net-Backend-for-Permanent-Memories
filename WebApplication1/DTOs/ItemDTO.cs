@@ -8,6 +8,7 @@ public class ItemDTO
     public int Quantity { get; set; }
     public decimal Price { get; set; }
     public string? Brand { get; set; }
+    public ItemBrandId ItemBrandId { get; set; }
     public bool IsAvailable { get; set; }
     public string? TitleImageUrl { get; set; }
     public List<string>? AdditionalImageUrls { get; set; } = new List<string>();
