@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231226030533_Migration56")]
+    partial class Migration56
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,7 +81,7 @@ namespace WebApplication1.Migrations
                 {
                     b.HasBaseType("WebApplication1.Models.Item");
 
-                    b.Property<int>("CameraFilmFormat")
+                    b.Property<int?>("CameraFilmFormat")
                         .HasColumnType("int");
 
                     b.Property<int>("CameraFocalLength")
@@ -95,7 +98,7 @@ namespace WebApplication1.Migrations
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("5a1fa3e6-5c42-4400-b397-2a318d400c45"),
+                            GUID = new Guid("37e126f2-8432-430e-9c20-b1536ce6ce63"),
                             AdditionalImageUrls = "[\"https://example.com/canon_eos_rebel_t7_1.jpg\",\"https://example.com/canon_eos_rebel_t7_2.jpg\"]",
                             Brand = "Canon",
                             Description = "A versatile and affordable entry-level DSLR camera.",
@@ -105,7 +108,6 @@ namespace WebApplication1.Migrations
                             Quantity = 100,
                             Title = "Canon EOS Rebel T7",
                             TitleImageUrl = "https://example.com/canon_eos_rebel_t7.jpg",
-                            CameraFilmFormat = 35,
                             CameraFocalLength = 50,
                             CameraMaxShutterSpeed = 0,
                             CameraMegapixel = 20
@@ -133,7 +135,7 @@ namespace WebApplication1.Migrations
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("7e48cec1-2111-4aa6-a105-d3bb41c3196d"),
+                            GUID = new Guid("1283ab20-07bf-4423-b326-b5a65718e0d8"),
                             AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
                             Brand = "Ilford",
                             Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",

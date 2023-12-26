@@ -308,34 +308,40 @@ public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
 
         }
        
-        // Update specific details based on item type
-        switch (editItemDTO.ItemDetails.ItemType)
+       // Update specific details based on item type
+switch (editItemDTO.ItemDetails.ItemType)
+{
+    case ItemType.Film:
+        // Your existing film-specific updates here
+        var filmDetails = editItemDTO.FilmDetails;
+        var editedFilm = itemToUpdate as Film;
+        if (filmDetails != null && editedFilm != null)
         {
-            case ItemType.Film:
-                // Your existing film-specific updates here
-                var filmDetails = editItemDTO.FilmDetails;
-                if (filmDetails != null)
-                {
-                    if (itemToUpdate is Film film)
-                    {
-                        film.FilmColorState = filmDetails.FilmColorState;
-                        film.FilmFormat = filmDetails.FilmFormat;
-                        film.FilmISO = filmDetails.FilmISO;
-                        film.FilmExposure = filmDetails.FilmExposure;
-                    }
-                    else
-                    {
-                        // Handle the case where the item type in the database is not a Film
-                        return BadRequest("Invalid item type");
-                    }
-                }
-                break;
-
-            // Add cases for other item types as needed
-
-            default:
-                return BadRequest("Unsupported item type");
+            editedFilm.FilmColorState = filmDetails.FilmColorState;
+            editedFilm.FilmFormat = filmDetails.FilmFormat;
+            editedFilm.FilmISO = filmDetails.FilmISO;
+            editedFilm.FilmExposure = filmDetails.FilmExposure;
         }
+        break;
+
+    case ItemType.Camera:
+        // Your existing camera-specific updates here
+        var cameraDetails = editItemDTO.CameraDetails;
+        var editedCamera = itemToUpdate as Camera;
+        if (cameraDetails != null && editedCamera != null)
+        {
+            
+            editedCamera.CameraFocalLength = cameraDetails.CameraFocalLength;
+            editedCamera.CameraMaxShutterSpeed = cameraDetails.CameraMaxShutterSpeed;
+            editedCamera.CameraMegapixel = cameraDetails.CameraMegapixel;
+            editedCamera.CameraFilmFormat = cameraDetails.CameraFilmFormat;
+        }
+        break;
+
+    default:
+        return BadRequest("Unsupported item type");
+}
+
 
         _dbContext.SaveChanges();
 
@@ -424,7 +430,8 @@ public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
                             AdditionalImageUrls = cameraItemDetails.AdditionalImageUrls ?? new List<string>(),
                             CameraFocalLength = cameraDetails.CameraFocalLength,
                             CameraMaxShutterSpeed = cameraDetails.CameraMaxShutterSpeed,
-                            CameraMegapixel = cameraDetails.CameraMegapixel
+                            CameraMegapixel = cameraDetails.CameraMegapixel,
+                            CameraFilmFormat = cameraDetails.CameraFilmFormat
 
                             // Set other camera properties as needed
                         };

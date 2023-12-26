@@ -27,6 +27,7 @@ namespace WebApplication1.Data
             builder.Property(c => c.CameraFocalLength).IsRequired();
             builder.Property(c => c.CameraMaxShutterSpeed).IsRequired();
             builder.Property(c => c.CameraMegapixel).IsRequired();
+            builder.Property(c => c.CameraFilmFormat).IsRequired();
 
             // Seed initial camera data
             builder.HasData(
@@ -47,7 +48,8 @@ namespace WebApplication1.Data
                     },
                     CameraFocalLength = CameraFocalLength._50mm,
                     CameraMaxShutterSpeed = CameraMaxShutterSpeed.ShutterSpeed3,
-                    CameraMegapixel =   CameraMegapixel.Megapixel_20
+                    CameraMegapixel = CameraMegapixel.Megapixel_20,
+                    CameraFilmFormat = CameraFilmFormat._35mm
                 }
             );
         }
