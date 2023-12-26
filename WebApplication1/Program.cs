@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using WebApplication1.Data;
 using Microsoft.AspNetCore.Identity;
 using WebApplication1.Models.UserRelatedModels;

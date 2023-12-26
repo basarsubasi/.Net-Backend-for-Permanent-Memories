@@ -19,46 +19,59 @@ namespace WebApplication1.Controllers
             _signInManager = signInManager;
         }
 
-        [HttpPost("register/customer")]
-        public async Task<IActionResult> RegisterCustomer([FromBody] RegistrationModel model)
-        {
-            return await RegisterUser(model, "Customer");
-        }
+       [HttpPost("register/customer")]
+public async Task<IActionResult> RegisterCustomer([FromBody] RegistrationModel model)
+{
+    return await RegisterUser(model, "Customer");
+}
 
-        [HttpPost("register/employee")]
-        public async Task<IActionResult> RegisterEmployee([FromBody] RegistrationModel model)
-        {
-            return await RegisterUser(model, "Employee");
-        }
+[HttpPost("register/employee")]
+public async Task<IActionResult> RegisterEmployee([FromBody] RegistrationModel model)
+{
+    return await RegisterUser(model, "Employee");
+}
 
-        private async Task<IActionResult> RegisterUser(RegistrationModel model, string role)
+private async Task<IActionResult> RegisterUser(RegistrationModel model, string role)
+{
+    if (string.IsNullOrEmpty(model.Email) || !IsValidEmail(model.Email))
+    {
+        return BadRequest("Invalid email format");
+    }
+
+    if (ModelState.IsValid)
+    {
+        var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+
+        // Set IsCustomer or IsEmployee based on the role
+        user.IsCustomer = role == "Customer";
+        user.IsEmployee = role == "Employee";
+
+        if (model.Password != null)
         {
-            if (ModelState.IsValid)
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-
-                // Set IsCustomer or IsEmployee based on the role
-                user.IsCustomer = role == "Customer";
-                user.IsEmployee = role == "Employee";
-
-                if (model.Password != null)
-                {
-                    var result = await _userManager.CreateAsync(user, model.Password);
-
-                    if (result.Succeeded)
-                    {
-                        await _userManager.AddToRoleAsync(user, role);
-                        return Ok(new { Message = "Registration successful" });
-                    }
-
-                    return BadRequest(result.Errors);
-                }
-
-                return BadRequest("Password cannot be null");
+                await _userManager.AddToRoleAsync(user, role);
+                return Ok(new { Message = "Registration successful" });
             }
 
-            return BadRequest(ModelState);
+            return BadRequest(result.Errors);
         }
+
+        return BadRequest("Password cannot be null");
+    }
+
+    return BadRequest(ModelState);
+}
+
+private bool IsValidEmail(string email)
+{
+    // Use a simple regex for email validation
+    // This regex is for basic email format validation and may not cover all cases
+    const string emailPattern = @"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$";
+    return System.Text.RegularExpressions.Regex.IsMatch(email, emailPattern);
+}
 
 
 [HttpPost("login")]
