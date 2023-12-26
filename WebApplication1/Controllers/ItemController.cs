@@ -271,8 +271,8 @@ public IActionResult GetItemByGuid(Guid guid)
 
 
 
-[HttpPut("editFilm/{guid}")]
-public IActionResult EditFilm(Guid guid, [FromBody] EditItemDTO editItemDTO)
+[HttpPut("editItem/{guid}")]
+public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
 {
     try
     {
@@ -281,84 +281,38 @@ public IActionResult EditFilm(Guid guid, [FromBody] EditItemDTO editItemDTO)
             return BadRequest(ModelState);
         }
 
-        var filmToUpdate = _dbContext.Items.OfType<Film>().FirstOrDefault(f => f.GUID == guid);
+        var itemToUpdate = _dbContext.Items.FirstOrDefault(i => i.GUID == guid);
 
-        if (filmToUpdate == null)
+        if (itemToUpdate == null)
         {
-            return NotFound("Film not found");
+            return NotFound("Item not found");
         }
 
         var itemDetails = editItemDTO.ItemDetails;
-        var filmDetails = editItemDTO.FilmDetails;
 
-        if (itemDetails != null)
+        // Update common properties
+        itemToUpdate.Title = itemDetails.Title ?? itemToUpdate.Title;
+        itemToUpdate.Description = itemDetails.Description ?? itemToUpdate.Description;
+        itemToUpdate.Quantity = itemDetails.Quantity > 0 ? itemDetails.Quantity : itemToUpdate.Quantity;
+        itemToUpdate.Price = itemDetails.Price > 0 ? itemDetails.Price : itemToUpdate.Price;
+        itemToUpdate.Brand = itemDetails.Brand ?? itemToUpdate.Brand;
+        itemToUpdate.ItemBrandId = editItemDTO.ItemDetails.ItemBrandId; // Update ItemBrandId enum
+        itemToUpdate.IsAvailable = itemDetails.IsAvailable;
+        itemToUpdate.TitleImageUrl = itemDetails.TitleImageUrl ?? itemToUpdate.TitleImageUrl;
+        itemToUpdate.AdditionalImageUrls = itemDetails.AdditionalImageUrls ?? itemToUpdate.AdditionalImageUrls;
+
+        // Handle Film-specific properties
+        if (itemToUpdate is Film filmToUpdate && editItemDTO.FilmDetails != null)
         {
-            // Update common properties
-            filmToUpdate.Title = itemDetails.Title ?? filmToUpdate.Title;
-            filmToUpdate.Description = itemDetails.Description ?? filmToUpdate.Description;
-            filmToUpdate.Quantity = itemDetails.Quantity > 0 ? itemDetails.Quantity : filmToUpdate.Quantity;
-            filmToUpdate.Price = itemDetails.Price > 0 ? itemDetails.Price : filmToUpdate.Price;
-            filmToUpdate.Brand = itemDetails.Brand ?? filmToUpdate.Brand;
-            filmToUpdate.ItemBrandId = editItemDTO.ItemDetails.ItemBrandId; // Update ItemBrandId enum
-            filmToUpdate.IsAvailable = itemDetails.IsAvailable;
-            filmToUpdate.TitleImageUrl = itemDetails.TitleImageUrl ?? filmToUpdate.TitleImageUrl;
-            filmToUpdate.AdditionalImageUrls = itemDetails.AdditionalImageUrls ?? filmToUpdate.AdditionalImageUrls;
-
-            // Update film-specific properties
             filmToUpdate.FilmColorState = editItemDTO.FilmDetails.FilmColorState;
             filmToUpdate.FilmFormat = editItemDTO.FilmDetails.FilmFormat;
             filmToUpdate.FilmISO = editItemDTO.FilmDetails.FilmISO;
             filmToUpdate.FilmExposure = editItemDTO.FilmDetails.FilmExposure;
         }
 
-        _dbContext.SaveChanges();
-
-        return Ok("Film updated successfully");
-    }
-    catch (Exception)
-    {
-        // Log the exception
-        return StatusCode(500, "Internal Server Error");
-    }
-}
-
-
-
-
-[HttpPut("editCamera/{guid}")]
-public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
-{
-    try
-    {
-        if (!ModelState.IsValid)
+        // Handle Camera-specific properties
+        if (itemToUpdate is Camera cameraToUpdate && editItemDTO.CameraDetails != null)
         {
-            return BadRequest(ModelState);
-        }
-
-        var cameraToUpdate = _dbContext.Items.OfType<Camera>().FirstOrDefault(c => c.GUID == guid);
-
-        if (cameraToUpdate == null)
-        {
-            return NotFound("Camera not found");
-        }
-
-        var itemDetails = editItemDTO.ItemDetails;
-        var cameraDetails = editItemDTO.CameraDetails;
-
-        if (itemDetails != null)
-        {
-            // Update common properties
-            cameraToUpdate.Title = itemDetails.Title ?? cameraToUpdate.Title;
-            cameraToUpdate.Description = itemDetails.Description ?? cameraToUpdate.Description;
-            cameraToUpdate.Quantity = itemDetails.Quantity > 0 ? itemDetails.Quantity : cameraToUpdate.Quantity;
-            cameraToUpdate.Price = itemDetails.Price > 0 ? itemDetails.Price : cameraToUpdate.Price;
-            cameraToUpdate.Brand = itemDetails.Brand ?? cameraToUpdate.Brand;
-            cameraToUpdate.ItemBrandId = editItemDTO.ItemDetails.ItemBrandId; // Update ItemBrandId enum
-            cameraToUpdate.IsAvailable = itemDetails.IsAvailable;
-            cameraToUpdate.TitleImageUrl = itemDetails.TitleImageUrl ?? cameraToUpdate.TitleImageUrl;
-            cameraToUpdate.AdditionalImageUrls = itemDetails.AdditionalImageUrls ?? cameraToUpdate.AdditionalImageUrls;
-
-            // Update camera-specific properties
             cameraToUpdate.CameraFocalLength = editItemDTO.CameraDetails.CameraFocalLength;
             cameraToUpdate.CameraMaxShutterSpeed = editItemDTO.CameraDetails.CameraMaxShutterSpeed;
             cameraToUpdate.CameraMegapixel = editItemDTO.CameraDetails.CameraMegapixel;
@@ -367,7 +321,7 @@ public IActionResult EditCamera(Guid guid, [FromBody] EditItemDTO editItemDTO)
 
         _dbContext.SaveChanges();
 
-        return Ok("Camera updated successfully");
+        return Ok("Item updated successfully");
     }
     catch (Exception)
     {
