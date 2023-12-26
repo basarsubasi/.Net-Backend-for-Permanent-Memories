@@ -280,3 +280,5 @@ C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\Web
 C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\WebApplication1.genruntimeconfig.cache
 C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\ref\WebApplication1.dll
 C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\obj\Debug\net8.0\WebApplication1.sourcelink.json
+C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\basar\Desktop\WebApplication1-main\WebApplication1\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.UI.dll

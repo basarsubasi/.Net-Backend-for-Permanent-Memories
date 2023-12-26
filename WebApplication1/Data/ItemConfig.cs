@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using WebApplication1.Models;
+using WebApplication1.Models.ItemRelatedModels;
 using WebApplication1.Enums.ItemEnums;
 
 namespace WebApplication1.Data

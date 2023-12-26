@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Collections.Generic;
-using WebApplication1.Models;
+using WebApplication1.Models.ItemRelatedModels;
 using WebApplication1.Enums.CameraEnums;
 using WebApplication1.Enums.ItemEnums;
 
