@@ -30,10 +30,24 @@ builder.Services.AddDbContext<IdentityAppDbContext>(options =>
     // Update the connection string as needed.
 });
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15); // Example lockout duration
+    options.Lockout.MaxFailedAccessAttempts = 5; // Example maximum failed attempts
+    options.Lockout.AllowedForNewUsers = true;
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.SignIn.RequireConfirmedAccount = false;
+    options.User.RequireUniqueEmail = true;
+
+});
+
+
 // Add Identity services using IdentityAppDbContext
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
 })
     .AddEntityFrameworkStores<IdentityAppDbContext>();
 

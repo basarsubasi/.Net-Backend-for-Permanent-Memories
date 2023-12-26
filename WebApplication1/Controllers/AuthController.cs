@@ -1,15 +1,13 @@
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models.UserRelatedModels;
 using Microsoft.AspNetCore.Authorization;
 
-
 namespace WebApplication1.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -38,6 +36,11 @@ namespace WebApplication1.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+
+                // Set IsCustomer or IsEmployee based on the role
+                user.IsCustomer = role == "Customer";
+                user.IsEmployee = role == "Employee";
+
                 if (model.Password != null)
                 {
                     var result = await _userManager.CreateAsync(user, model.Password);
@@ -57,7 +60,9 @@ namespace WebApplication1.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPost("login")]
+
+[HttpPost("login")]
+[AllowAnonymous]
 public async Task<IActionResult> Login([FromBody] LoginModel model)
 {
     if (!ModelState.IsValid)
@@ -65,30 +70,31 @@ public async Task<IActionResult> Login([FromBody] LoginModel model)
         return BadRequest(ModelState);
     }
 
-    if (model.Email == null || model.Password == null)
+    if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
     {
-        return BadRequest("Email or password cannot be null");
+        return BadRequest("Email or password cannot be null or empty");
     }
 
-    var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, lockoutOnFailure: false);
+    var user = await _userManager.FindByEmailAsync(model.Email);
+
+    if (user == null)
+    {
+        return BadRequest("User not found");
+    }
+
+    var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, lockoutOnFailure: false);
 
     if (result.Succeeded)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user != null)
+        var roles = await _userManager.GetRolesAsync(user);
+        return Ok(new
         {
-            var roles = await _userManager.GetRolesAsync(user);
-            return Ok(new
-            {
-                Message = "Login successful",
-                UserId = user.Id,
-                UserName = user.UserName,
-                Email = user.Email,
-                Roles = roles
-            });
-        }
-
-        return BadRequest("User not found");
+            Message = "Login successful",
+            UserId = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            Roles = roles
+        });
     }
 
     if (result.IsLockedOut)
@@ -96,10 +102,25 @@ public async Task<IActionResult> Login([FromBody] LoginModel model)
         return BadRequest("Account is locked out");
     }
 
+    if (result.IsNotAllowed)
+    {
+        return BadRequest("User is not allowed to sign in");
+    }
+
+    if (result.RequiresTwoFactor)
+    {
+        // Handle two-factor authentication if needed
+        return BadRequest("Two-factor authentication is required");
+    }
+
+    // Password is incorrect
+    if (result == Microsoft.AspNetCore.Identity.SignInResult.Failed)
+    {
+        return BadRequest("Invalid password");
+    }
+
     return BadRequest("Invalid login attempt");
 }
 
-
-        // Additional actions and methods can be added as needed
-    }
+}
 }
