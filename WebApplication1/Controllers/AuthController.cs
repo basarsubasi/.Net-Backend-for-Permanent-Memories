@@ -8,6 +8,7 @@ namespace WebApplication1.Controllers
 {
     [Route("api/auth")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -20,6 +21,7 @@ namespace WebApplication1.Controllers
         }
 
        [HttpPost("register/customer")]
+       [AllowAnonymous]
 public async Task<IActionResult> RegisterCustomer([FromBody] RegistrationModel model)
 {
     return await RegisterUser(model, "Customer");
@@ -135,5 +137,95 @@ public async Task<IActionResult> Login([FromBody] LoginModel model)
     return BadRequest("Invalid login attempt");
 }
 
+
+[HttpPost("logout")]
+[Authorize]
+public async Task<IActionResult> Logout()
+{
+    await _signInManager.SignOutAsync();
+    return Ok(new { Message = "Logout successful" });
 }
+
+
+[HttpDelete("delete/{userId}")]
+[Authorize(Policy = "AdminOnly")]
+public async Task<IActionResult> DeleteUser(string userId)
+{
+    if (Guid.TryParse(userId, out Guid userGuid))
+    {
+        var user = await _userManager.FindByIdAsync(userGuid.ToString());
+
+        if (user != null)
+        {
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok(new { Message = "User deleted successfully" });
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        return BadRequest("User not found");
+    }
+
+    return BadRequest("Invalid user ID format");
 }
+
+// Modify the existing action in your AuthController
+[HttpGet("users")]
+[Authorize(Policy = "AdminOnly")] // Make sure only authorized users can list users (adjust role as needed)
+public IActionResult ListUsers([FromQuery] string role)
+{
+    IQueryable<ApplicationUser> usersQuery;
+
+    if (!string.IsNullOrEmpty(role))
+    {
+        // Filter users based on the specified role
+        usersQuery = _userManager.GetUsersInRoleAsync(role).Result.AsQueryable();
+    }
+    else
+    {
+        // If no role is specified, retrieve all users
+        usersQuery = _userManager.Users;
+    }
+
+    var users = usersQuery.Select(user => new
+    {
+        UserId = user.Id,
+        UserName = user.UserName,
+        Email = user.Email
+        // Add any other user properties you want to include in the response
+    });
+
+    return Ok(users);
+}
+
+ [HttpGet("customers")]
+ [Authorize(Policy = "EmployeeOrAdmin")]
+ 
+    public IActionResult GetCustomers()
+    {
+        // Retrieve users with the "Customer" role
+        var customers = _userManager.GetUsersInRoleAsync("Customer").Result;
+
+        // You may want to project the user information or perform additional processing here
+        var customerList = customers.Select(user => new
+        {
+            UserId = user.Id,
+            UserName = user.UserName,
+            Email = user.Email
+            // Add other properties as needed
+        }).ToList();
+
+        return Ok(customerList);
+    }
+}
+
+
+
+
+
+}
+

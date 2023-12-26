@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WebApplication1.Models.ItemRelatedModels;
 using WebApplication1.Enums.FilmEnums;
 using WebApplication1.Enums.ItemEnums;
+using System;
 
 
 namespace WebApplication1.Data
@@ -20,7 +21,8 @@ namespace WebApplication1.Data
            
 
             // Price and availability
-            builder.Property(f => f.Price).IsRequired();
+    
+            builder.Property(f => f.Price).IsRequired().HasColumnType("decimal(18, 2)");
             builder.Property(f => f.Brand).IsRequired();
             builder.Property(f => f.ItemBrandId).IsRequired();
             builder.Property(f => f.IsAvailable).IsRequired();

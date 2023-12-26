@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
-using Microsoft.AspNetCore.Identity;
 using WebApplication1.Models.UserRelatedModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,40 +8,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.PropertyNamingPolicy = null; // Use camelCase
-    options.JsonSerializerOptions.WriteIndented = true; // Enable indentation for better readability
-    // Add any other customization options you need
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    options.JsonSerializerOptions.WriteIndented = true;
 });
 
 // Add DbContext for the main application
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AppDbContextConnection"));
-    // Replace "UseSqlServer" with the appropriate method for your database provider.
-    // Update the connection string as needed.
 });
 
 // Add DbContext specifically for Identity
 builder.Services.AddDbContext<IdentityAppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDbContextConnection"));
-    // Replace "UseSqlServer" with the appropriate method for your database provider.
-    // Update the connection string as needed.
 });
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15); // Example lockout duration
-    options.Lockout.MaxFailedAccessAttempts = 5; // Example maximum failed attempts
-    options.Lockout.AllowedForNewUsers = true;
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedPhoneNumber = false;
-    options.SignIn.RequireConfirmedPhoneNumber = false;
-    options.SignIn.RequireConfirmedAccount = false;
-    options.User.RequireUniqueEmail = true;
-
-});
-
 
 // Add Identity services using IdentityAppDbContext
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -50,15 +31,36 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
     .AddEntityFrameworkStores<IdentityAppDbContext>();
 
+// Add Authorization policies
 builder.Services.AddAuthorization(options =>
 {
-    // Restrict access for employees
-    options.AddPolicy("EmployeePolicy", policy => policy.RequireRole("Employee"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("EmployeeOrAdmin", policy => policy.RequireRole("Employee", "Admin"));
+    
 });
 
-builder.Services.AddSwaggerGen(); // Add this line to register MVC services.
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Create a scope to get services
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    // Initialize the database
+    var dbContext = services.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+
+    // Initialize Identity database
+    var identityDbContext = services.GetRequiredService<IdentityAppDbContext>();
+    identityDbContext.Database.Migrate();
+
+    // Initialize roles and an admin user
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+           SeedData.InitializeRolesAndAdminUser(roleManager, userManager).Wait();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -68,31 +70,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseRouting();
-
 app.UseAuthorization();
-
-// Add this line to enable MVC.
 app.MapControllers();
 
-// Create roles in IdentityAppDbContext
-using (var scope = app.Services.CreateScope())
-{
-    var serviceProvider = scope.ServiceProvider;
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // Check if roles exist, and create them if not
-    var roles = new[] { "Customer", "Employee" };
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-}
 
 app.Run();
 
-app.Run();
+

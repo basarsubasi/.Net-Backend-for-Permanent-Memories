@@ -3,12 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models.ItemRelatedModels;
 using WebApplication1.Enums.ItemEnums;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("api/[Controller]")]
+    [AllowAnonymous]
     public class ItemController : ControllerBase
     {
         private readonly AppDbContext _dbContext;
@@ -19,6 +21,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("searchItems")]
+        [AllowAnonymous]
         public async Task<IActionResult> SearchItems(
             [FromQuery] bool IWantToFilter = false,
             [FromQuery] ItemType? itemType = null,
@@ -126,6 +129,7 @@ namespace WebApplication1.Controllers
             return query;
         }
                 [HttpGet("getImage/{guid}")]
+                [AllowAnonymous]
         public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
         {
             try
@@ -226,6 +230,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("{guid}")]
+        [AllowAnonymous]
         public IActionResult GetItemByGuid(Guid guid)
         {
             try
@@ -248,6 +253,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("editItem/{guid}")]
+        [Authorize(Policy = "EmployeeOrAdmin")]
         public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
         {
             try
@@ -305,7 +311,8 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
-                [HttpPost("createItem/{itemType}")]
+        [HttpPost("createItem/{itemType}")]
+        [Authorize(Policy = "EmployeeOrAdmin")]
         public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO createItemDTO)
         {
             try
@@ -409,6 +416,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("deleteImage")]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult DeleteImage(
             [FromQuery] Guid? guid = null,
             [FromQuery] int? index = null)
@@ -468,6 +476,60 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+        [HttpDelete("deleteItem/{guid}")]
+        [Authorize(Policy = "AdminOnly")]
+        public IActionResult DeleteItem(Guid guid)
+        {
+            try
+            {
+                var itemToDelete = _dbContext.Items.FirstOrDefault(item => item.GUID == guid);
+
+                if (itemToDelete == null)
+                {
+                    return NotFound($"Item with GUID {guid} not found");
+                }
+
+                _dbContext.Items.Remove(itemToDelete);
+                _dbContext.SaveChanges();
+
+                return Ok($"Item with GUID {guid} deleted successfully");
+            }
+            catch (Exception)
+            {
+                // Log the exception
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+
+[HttpDelete("deleteAllItems")]
+[Authorize(Policy = "AdminOnly")]
+
+public IActionResult DeleteAllItems()
+{
+    try
+    {
+        var itemsToDelete = _dbContext.Items.ToList();
+
+        if (itemsToDelete.Count == 0)
+        {
+            return NotFound("No items found to delete");
+        }
+
+        _dbContext.Items.RemoveRange(itemsToDelete);
+        _dbContext.SaveChanges();
+
+        return Ok("All items deleted successfully");
+    }
+    catch (Exception)
+    {
+        // Log the exception
+        return StatusCode(500, "Internal Server Error");
+    }
+}
+
+
     }
 }
 
