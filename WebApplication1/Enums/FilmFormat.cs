@@ -1,7 +1,7 @@
 // Enums/FilmType.cs
 namespace WebApplication1.Enums
 {
-    public enum FilmSize
+    public enum FilmFormat
     {
         _35mm = 035,
         _120mm = 120

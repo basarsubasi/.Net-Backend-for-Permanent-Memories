@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231226020851_Migration31")]
+    partial class Migration31
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,8 +45,8 @@ namespace WebApplication1.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
@@ -74,40 +77,6 @@ namespace WebApplication1.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.Camera", b =>
-                {
-                    b.HasBaseType("WebApplication1.Models.Item");
-
-                    b.Property<int>("CameraFocalLength")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CameraMaxShutterSpeed")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CameraMegapixel")
-                        .HasColumnType("int");
-
-                    b.HasDiscriminator().HasValue("Camera");
-
-                    b.HasData(
-                        new
-                        {
-                            GUID = new Guid("cd342c9e-499a-441b-8a78-0ac549b18152"),
-                            AdditionalImageUrls = "[\"https://example.com/canon_eos_rebel_t7_1.jpg\",\"https://example.com/canon_eos_rebel_t7_2.jpg\"]",
-                            Brand = "Canon",
-                            Description = "A versatile and affordable entry-level DSLR camera.",
-                            IsAvailable = true,
-                            ItemType = 1,
-                            Price = 499.99m,
-                            Quantity = 100,
-                            Title = "Canon EOS Rebel T7",
-                            TitleImageUrl = "https://example.com/canon_eos_rebel_t7.jpg",
-                            CameraFocalLength = 50,
-                            CameraMaxShutterSpeed = 0,
-                            CameraMegapixel = 20
-                        });
-                });
-
             modelBuilder.Entity("WebApplication1.Models.Film", b =>
                 {
                     b.HasBaseType("WebApplication1.Models.Item");
@@ -129,7 +98,7 @@ namespace WebApplication1.Migrations
                     b.HasData(
                         new
                         {
-                            GUID = new Guid("c6fbdeb9-6ca4-4a2e-b173-762a89382b7b"),
+                            GUID = new Guid("ce1a891f-32b0-4072-a750-b5b357dbba2d"),
                             AdditionalImageUrls = "[\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\",\"https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg\"]",
                             Brand = "Ilford",
                             Description = "Kodak Portra 400 is a color negative film great for portraits, fashion and commercial shoots. This film is known for its beautiful skin tones and natural colors.",

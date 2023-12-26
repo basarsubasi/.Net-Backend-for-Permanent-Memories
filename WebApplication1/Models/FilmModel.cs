@@ -36,7 +36,7 @@ namespace WebApplication1.Models
 
         // Enums for Film characteristics
         public FilmColorState FilmColorState { get; set; }
-        public FilmSize FilmSize { get; set; }
+        public FilmFormat FilmFormat { get; set; }
         public FilmISO FilmISO { get; set; }
         public FilmExposure FilmExposure { get; set; }
 

@@ -7,6 +7,7 @@ using WebApplication1.DTOs;
 using WebApplication1.Enums;
 using AutoMapper;
 using System;
+using System.Net;
 
 namespace WebApplication1.Controllers
 {
@@ -146,12 +147,12 @@ public async Task<IActionResult> GetTitleImageByGuid(Guid guid)
 
         if (item == null)
         {
-            return NotFound($"Item with GUID {guid} not found");
+            return NotFound("Item not found");
         }
 
         if (string.IsNullOrEmpty(item.TitleImageUrl))
         {
-            return NotFound($"Image not found for item with GUID {guid}");
+            return NotFound("Image not found for item");
         }
 
         using (var httpClient = new HttpClient())
@@ -160,18 +161,26 @@ public async Task<IActionResult> GetTitleImageByGuid(Guid guid)
             {
                 var imageBytes = await httpClient.GetByteArrayAsync(item.TitleImageUrl);
 
-                if (imageBytes.Length > 0)
+                if (imageBytes != null && imageBytes.Length > 0)
                 {
                     return File(imageBytes, "image/jpeg");
                 }
-                else
-                {
-                    return NotFound($"Image not found for item with GUID {guid}");
-                }
+
+              else
+              {
+                return NotFound($"Image not found for item with GUID {guid}");
+              }
+   
             }
+
+            catch (HttpRequestException)
+    {
+        // Handle invalid URL exception
+            return NotFound("Invalid image URL for item");
+    }
             catch (Exception)
             {
-                return StatusCode(500, "Internal Server Error");
+                return StatusCode(500, "Error fetching image for item");
             }
         }
     }
@@ -180,6 +189,7 @@ public async Task<IActionResult> GetTitleImageByGuid(Guid guid)
         return StatusCode(500, "Internal Server Error");
     }
 }
+
 
 [HttpGet("getAdditionalImage/{guid}")]
 public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int index)
@@ -203,6 +213,9 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
             return BadRequest("Invalid index parameter");
         }
 
+    
+            
+
         using (var httpClient = new HttpClient())
         {
             try
@@ -210,7 +223,7 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
                 var imageUrl = item.AdditionalImageUrls[index];
                 var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
 
-                if (imageBytes.Length > 0)
+                if (imageBytes != null && imageBytes.Length > 0)
                 {
                     return File(imageBytes, "image/jpeg");
                 }
@@ -219,9 +232,9 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
                     return NotFound($"Image not found for item with GUID {guid} at index {index}");
                 }
             }
-            catch (Exception)
+            catch (HttpRequestException)
             {
-                return StatusCode(500, "Internal Server Error");
+                return NotFound($"Image not found for item with GUID {guid} at index {index}");
             }
         }
     }
@@ -230,6 +243,7 @@ public async Task<IActionResult> GetAdditionalImage(Guid guid, [FromQuery] int i
         return StatusCode(500, "Internal Server Error");
     }
 }
+
 
 
 
@@ -305,7 +319,7 @@ public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
                     if (itemToUpdate is Film film)
                     {
                         film.FilmColorState = filmDetails.FilmColorState;
-                        film.FilmSize = filmDetails.FilmSize;
+                        film.FilmFormat = filmDetails.FilmFormat;
                         film.FilmISO = filmDetails.FilmISO;
                         film.FilmExposure = filmDetails.FilmExposure;
                     }
@@ -342,9 +356,9 @@ public IActionResult EditItem(Guid guid, [FromBody] EditItemDTO editItemDTO)
 
     
 
+ [HttpPost("createItem/{itemType}")]
 
-    [HttpPost("createItem/{itemType}")]
-public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO createItemDTO)
+    public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO createItemDTO)
 {
     try
     {
@@ -360,22 +374,23 @@ public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO create
             {
                 case ItemType.Film:
                     var filmDetails = createItemDTO.FilmDetails;
-                    var ItemDetails = createItemDTO.ItemDetails;
+                    var filmItemDetails = createItemDTO.ItemDetails;
 
                     if (filmDetails != null)
                     {
                         var newFilm = new Film
                         {
-                            Title = ItemDetails.Title ?? "Default Title",
-                            Description = ItemDetails.Description ?? "Default Description",
-                            Quantity = ItemDetails.Quantity > 0 ? ItemDetails.Quantity : 1,
-                            Price = ItemDetails.Price > 0 ? ItemDetails.Price : 0.0m,
-                            Brand = ItemDetails.Brand ?? "Default Brand",
-                            IsAvailable = ItemDetails.IsAvailable,
-                            TitleImageUrl = ItemDetails.TitleImageUrl ?? "Default Title Image URL",
-                            AdditionalImageUrls = ItemDetails.AdditionalImageUrls ?? new List<string>(),
+                            Title = filmItemDetails.Title ?? "Default Title",
+                            Description = filmItemDetails.Description ?? "Default Description",
+                            Quantity = filmItemDetails.Quantity > 0 ? filmItemDetails.Quantity : 1,
+                            Price = filmItemDetails.Price > 0 ? filmItemDetails.Price : 0.0m,
+                            Brand = filmItemDetails.Brand ?? "Default Brand",
+                            IsAvailable = filmItemDetails.IsAvailable,
+                            ItemType = filmItemDetails.ItemType = ItemType.Film,
+                            TitleImageUrl = filmItemDetails.TitleImageUrl ?? "Default Title Image URL",
+                            AdditionalImageUrls = filmItemDetails.AdditionalImageUrls ?? new List<string>(),
                             FilmColorState = filmDetails.FilmColorState,
-                            FilmSize = filmDetails.FilmSize,
+                            FilmFormat = filmDetails.FilmFormat,
                             FilmISO = filmDetails.FilmISO,
                             FilmExposure = filmDetails.FilmExposure
 
@@ -386,12 +401,42 @@ public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO create
                         _dbContext.Items.Add(newFilm);
                         _dbContext.SaveChanges();
 
-                       
-
                         return Ok("Film created successfully");
                     }
                     break;
 
+                case ItemType.Camera:
+                    var cameraDetails = createItemDTO.CameraDetails;
+                    var cameraItemDetails = createItemDTO.ItemDetails;
+
+                    if (cameraDetails != null)
+                    {
+                        var newCamera = new Camera
+                        {
+                            Title = cameraItemDetails.Title ?? "Default Title",
+                            Description = cameraItemDetails.Description ?? "Default Description",
+                            Quantity = cameraItemDetails.Quantity > 0 ? cameraItemDetails.Quantity : 1,
+                            Price = cameraItemDetails.Price > 0 ? cameraItemDetails.Price : 0.0m,
+                            Brand = cameraItemDetails.Brand ?? "Default Brand",
+                            IsAvailable = cameraItemDetails.IsAvailable,
+                            ItemType = cameraItemDetails.ItemType  = ItemType.Camera,
+                            TitleImageUrl = cameraItemDetails.TitleImageUrl ?? "Default Title Image URL",
+                            AdditionalImageUrls = cameraItemDetails.AdditionalImageUrls ?? new List<string>(),
+                            CameraFocalLength = cameraDetails.CameraFocalLength,
+                            CameraMaxShutterSpeed = cameraDetails.CameraMaxShutterSpeed,
+                            CameraMegapixel = cameraDetails.CameraMegapixel
+
+                            // Set other camera properties as needed
+                        };
+
+                        // Add the new camera to the database
+                        _dbContext.Items.Add(newCamera);
+                        _dbContext.SaveChanges();
+
+                        return Ok("Camera created successfully");
+                    }
+                    break;
+                    
                 // Add cases for other item types as needed
 
                 default:
@@ -411,6 +456,7 @@ public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO create
 
     return BadRequest("Invalid request");
 }
+
 
 [HttpDelete("deleteItems")]
 public IActionResult DeleteItems(
