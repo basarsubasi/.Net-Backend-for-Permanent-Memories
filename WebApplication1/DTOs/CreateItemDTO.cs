@@ -1,6 +1,6 @@
-using WebApplication1.Enums;
+
 using WebApplication1.DTOs;
-using WebApplication1.Models;
+
 
 public class CreateItemDTO
 {

@@ -1,4 +1,4 @@
-namespace WebApplication1.Enums
+namespace WebApplication1.Enums.CameraEnums
 {
     public enum CameraFilmFormat
     {

@@ -1,4 +1,4 @@
-namespace WebApplication1.Enums
+namespace WebApplication1.Enums.ItemEnums
 {
     public enum ItemBrandId
     {

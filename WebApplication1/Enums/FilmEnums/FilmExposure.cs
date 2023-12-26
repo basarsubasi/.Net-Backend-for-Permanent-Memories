@@ -1,5 +1,5 @@
 // WebAPI/Enums/FilmExposure.cs
-namespace WebApplication1.Enums
+namespace WebApplication1.Enums.FilmEnums
 {
     public enum FilmExposure
     {

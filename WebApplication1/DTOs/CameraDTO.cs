@@ -1,4 +1,4 @@
-using WebApplication1.Enums;
+using WebApplication1.Enums.CameraEnums;
 
 namespace WebApplication1.DTOs
 {

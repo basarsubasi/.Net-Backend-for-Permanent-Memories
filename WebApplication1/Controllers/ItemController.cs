@@ -1,13 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
-using WebApplication1.DTOs;
-using WebApplication1.Enums;
-using AutoMapper;
-using System;
-using System.Net;
+using WebApplication1.Enums.ItemEnums;
+
 
 namespace WebApplication1.Controllers
 {

@@ -1,5 +1,5 @@
 // Enums/FilmType.cs
-namespace WebApplication1.Enums
+namespace WebApplication1.Enums.FilmEnums
 {
     public enum FilmFormat
     {

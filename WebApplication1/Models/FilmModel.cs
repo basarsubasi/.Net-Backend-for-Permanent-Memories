@@ -1,7 +1,7 @@
 // Models/Film.cs
 using System;
 using WebApplication1.Data;
-using WebApplication1.Enums;
+using WebApplication1.Enums.FilmEnums;
 using WebApplication1.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;

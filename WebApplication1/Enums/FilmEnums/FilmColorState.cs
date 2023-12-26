@@ -1,5 +1,5 @@
 // Enums/FilmColorState.cs
-namespace WebApplication1.Enums
+namespace WebApplication1.Enums.FilmEnums
 {
     public enum FilmColorState
     {

@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WebApplication1.Models;
+using WebApplication1.Enums.FilmEnums;
+using WebApplication1.Enums.ItemEnums;
 
-using WebApplication1.Enums;
 
 namespace WebApplication1.Data
 {
