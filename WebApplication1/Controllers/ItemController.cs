@@ -158,6 +158,11 @@ public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
                 return NotFound("Image not found for item");
             }
 
+            if (!Uri.TryCreate(item.TitleImageUrl, UriKind.Absolute, out _))
+            {
+                return BadRequest("Invalid title image URL");
+            }
+
             using (var httpClient = new HttpClient())
             {
                 try
@@ -176,11 +181,11 @@ public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
                 catch (HttpRequestException)
                 {
                     // Handle invalid URL exception
-                    return NotFound("Invalid image URL for item");
+                    return NotFound("Error fetching title image for item");
                 }
                 catch (Exception)
                 {
-                    return StatusCode(500, "Error fetching image for item");
+                    return StatusCode(500, "Error fetching title image for item");
                 }
             }
         }
@@ -197,11 +202,17 @@ public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
                 return BadRequest("Invalid index parameter");
             }
 
+            var imageUrl = item.AdditionalImageUrls[index];
+
+            if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out _))
+            {
+                return BadRequest($"Invalid additional image URL at index {index}");
+            }
+
             using (var httpClient = new HttpClient())
             {
                 try
                 {
-                    var imageUrl = item.AdditionalImageUrls[index];
                     var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
 
                     if (imageBytes != null && imageBytes.Length > 0)
@@ -215,7 +226,8 @@ public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
                 }
                 catch (HttpRequestException)
                 {
-                    return NotFound($"Image not found for item with GUID {guid} at index {index}");
+                    // Handle invalid URL exception
+                    return NotFound($"Error fetching additional image for item with GUID {guid} at index {index}");
                 }
             }
         }
