@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
 namespace WebApplication1.Models.UserRelatedModels
 {
 public class SeedData
