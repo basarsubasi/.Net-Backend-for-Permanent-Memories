@@ -147,7 +147,7 @@ public async Task<IActionResult> Logout()
 }
 
 
-[HttpDelete("delete/{userId}")]
+[HttpDelete("deleteUsers/{userId}")]
 [Authorize(Policy = "AdminOnly")]
 public async Task<IActionResult> DeleteUser(string userId)
 {
@@ -174,7 +174,7 @@ public async Task<IActionResult> DeleteUser(string userId)
 }
 
 // Modify the existing action in your AuthController
-[HttpGet("users")]
+[HttpGet("GetUsers")]
 [Authorize(Policy = "AdminOnly")] // Make sure only authorized users can list users (adjust role as needed)
 public IActionResult ListUsers([FromQuery] string role)
 {
@@ -202,7 +202,7 @@ public IActionResult ListUsers([FromQuery] string role)
     return Ok(users);
 }
 
- [HttpGet("customers")]
+ [HttpGet("GetCustomers")]
  [Authorize(Policy = "EmployeeOrAdmin")]
  
     public IActionResult GetCustomers()
