@@ -23,8 +23,9 @@ namespace WebApplication1.Controllers
         [HttpGet("searchItems")]
         [AllowAnonymous]
         public async Task<IActionResult> SearchItems(
+            [FromQuery] bool FilterOn = false,
             [FromQuery] ItemType? itemType = null,
-            [FromQuery] string? title = null,
+            [FromQuery] string? title = null,   
             [FromQuery] bool? isAvailable = null,
             [FromQuery] decimal? minPrice = null,
             [FromQuery] decimal? maxPrice = null,
@@ -38,10 +39,9 @@ namespace WebApplication1.Controllers
                 IQueryable<Item> itemsQuery = _dbContext.Items;
                     
 
-                    if (itemType==null)
-                    {
-                        return BadRequest("Item type is required");
-                    }
+             if (FilterOn)
+             {
+                    
 
 
                 
@@ -79,6 +79,7 @@ namespace WebApplication1.Controllers
                         itemsQuery = itemsQuery.Where(item => item.ItemBrandId == itemBrandId);
                     
                 }
+                }
 
                 // Apply sorting
                 if (!string.IsNullOrEmpty(sortBy))
@@ -100,8 +101,14 @@ namespace WebApplication1.Controllers
                         item.TitleImageUrl,
                     })
                     .ToListAsync();
+                if (items.Count == 0)
+                    {
+                        return NotFound("No items found for the specified criteria");
+                    }
+                    
 
                 return Ok(items);
+                
             }
             catch (Exception)
             {
