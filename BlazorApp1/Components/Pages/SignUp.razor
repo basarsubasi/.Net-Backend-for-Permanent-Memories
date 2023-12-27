@@ -1,0 +1,51 @@
+@page "/signup"
+@using WebApplication1.Models.UserRelatedModels // Use the appropriate base class if needed
+@inject HttpClient HttpClient // Inject HttpClient if you need to make API calls
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
+
+
+<h3>Sign Up</h3>
+
+<form @onsubmit="RegisterUser">
+    <div>
+        <label>Email:</label>
+        <input type="email" bind="@model.Email" />
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" bind="@model.Password" />
+    </div>
+    <div>
+        <label>Confirm Password:</label>
+        <input type="password" bind="@confirmPassword" />
+    </div>
+    <button type="submit">Sign Up</button>
+</form>
+
+@code {
+    private RegistrationModel model = new RegistrationModel();
+    private string? confirmPassword;
+
+    private async Task RegisterUser()
+    {
+        if (model.Password != confirmPassword)
+        {
+            // Handle password mismatch
+            return;
+        }
+
+        var response = await HttpClient.PostAsJsonAsync("/api/auth/register/customer", model);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Handle successful registration, e.g., redirect to login page
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            // Handle registration failure
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            // Display error message to the user
+        }
+    }
+}
