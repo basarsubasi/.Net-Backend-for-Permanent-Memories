@@ -97,6 +97,7 @@ namespace WebApplication1.Controllers
                         item.IsAvailable,
                         item.GUID,
                         item.ItemType,
+                        item.TitleImageUrl,
                     })
                     .ToListAsync();
 
@@ -133,6 +134,9 @@ namespace WebApplication1.Controllers
 
             return query;
         }
+
+
+
                 [HttpGet("getImage/{guid}")]
                 [AllowAnonymous]
         public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
@@ -234,7 +238,7 @@ namespace WebApplication1.Controllers
             }
         }
 
-        [HttpGet("{guid}")]
+        [HttpGet("getItem/{guid}")]
         [AllowAnonymous]
         public IActionResult GetItemByGuid(Guid guid)
         {
