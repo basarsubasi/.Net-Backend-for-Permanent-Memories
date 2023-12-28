@@ -10,7 +10,7 @@ namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("api/[Controller]")]
-    [AllowAnonymous]
+
     public class ItemController : ControllerBase
     {
         private readonly AppDbContext _dbContext;

@@ -8,7 +8,6 @@ namespace WebApplication1.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
