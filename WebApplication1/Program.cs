@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowAnyOrigin",
         builder => builder.AllowAnyOrigin()// Adjust the origin to match your Blazor app
                           .AllowAnyHeader()
                           .AllowAnyMethod());
@@ -79,6 +79,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors("AllowAnyOrigin");
 app.UseAuthorization();
 app.MapControllers();
 

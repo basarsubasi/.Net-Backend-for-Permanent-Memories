@@ -23,7 +23,6 @@ namespace WebApplication1.Controllers
         [HttpGet("searchItems")]
         [AllowAnonymous]
         public async Task<IActionResult> SearchItems(
-            [FromQuery] bool FilterOn = false,
             [FromQuery] ItemType? itemType = null,
             [FromQuery] string? title = null,   
             [FromQuery] bool? isAvailable = null,
@@ -37,14 +36,7 @@ namespace WebApplication1.Controllers
             try
             {
                 IQueryable<Item> itemsQuery = _dbContext.Items;
-                    
 
-             if (FilterOn)
-             {
-                    
-
-
-                
                     if (itemType.HasValue)
                     {
                         itemsQuery = itemsQuery.Where(item => item.ItemType == itemType);
@@ -78,7 +70,7 @@ namespace WebApplication1.Controllers
                     {
                         itemsQuery = itemsQuery.Where(item => item.ItemBrandId == itemBrandId);
                     
-                }
+                
                 }
 
                 // Apply sorting
