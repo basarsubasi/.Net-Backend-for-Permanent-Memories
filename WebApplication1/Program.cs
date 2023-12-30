@@ -76,10 +76,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAnyOrigin");
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseCors("AllowAnyOrigin");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
