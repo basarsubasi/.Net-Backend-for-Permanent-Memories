@@ -136,107 +136,7 @@ namespace WebApplication1.Controllers
 
 
 
-                [HttpGet("getImage/{guid}")]
-                [AllowAnonymous]
-        public async Task<IActionResult> GetImage(Guid guid, [FromQuery] int index = -1)
-        {
-            try
-            {
-                var item = await _dbContext.Items.FirstOrDefaultAsync(i => i.GUID == guid);
-
-                if (item == null)
-                {
-                    return NotFound($"Item with GUID {guid} not found");
-                }
-
-                if (index == -1)
-                {
-                    // Get the title image
-                    if (string.IsNullOrEmpty(item.TitleImageUrl))
-                    {
-                        return NotFound("Image not found for item");
-                    }
-
-                    if (!Uri.TryCreate(item.TitleImageUrl, UriKind.Absolute, out _))
-                    {
-                        return BadRequest("Invalid title image URL");
-                    }
-
-                    using (var httpClient = new HttpClient())
-                    {
-                        try
-                        {
-                            var imageBytes = await httpClient.GetByteArrayAsync(item.TitleImageUrl);
-
-                            if (imageBytes != null && imageBytes.Length > 0)
-                            {
-                                return File(imageBytes, "image/jpeg");
-                            }
-                            else
-                            {
-                                return NotFound($"Image not found for item with GUID {guid}");
-                            }
-                        }
-                        catch (HttpRequestException)
-                        {
-                            // Handle invalid URL exception
-                            return NotFound("Error fetching title image for item");
-                        }
-                        catch (Exception)
-                        {
-                            return StatusCode(500, "Error fetching title image for item");
-                        }
-                    }
-                }
-                else
-                {
-                    // Get additional image by index
-                    if (item.AdditionalImageUrls == null || item.AdditionalImageUrls.Count == 0)
-                    {
-                        return NotFound($"No additional images found for item with GUID {guid}");
-                    }
-
-                    if (index < 0 || index >= item.AdditionalImageUrls.Count)
-                    {
-                        return BadRequest("Invalid index parameter");
-                    }
-
-                    var imageUrl = item.AdditionalImageUrls[index];
-
-                    if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out _))
-                    {
-                        return BadRequest($"Invalid additional image URL at index {index}");
-                    }
-
-                    using (var httpClient = new HttpClient())
-                    {
-                        try
-                        {
-                            var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
-
-                            if (imageBytes != null && imageBytes.Length > 0)
-                            {
-                                return File(imageBytes, "image/jpeg");
-                            }
-                            else
-                            {
-                                return NotFound($"Image not found for item with GUID {guid} at index {index}");
-                            }
-                        }
-                        catch (HttpRequestException)
-                        {
-                            // Handle invalid URL exception
-                            return NotFound($"Error fetching additional image for item with GUID {guid} at index {index}");
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Internal Server Error");
-            }
-        }
-
+              
         [HttpGet("getItem/{guid}")]
         [AllowAnonymous]
         public IActionResult GetItemByGuid(Guid guid)
@@ -319,6 +219,8 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
+
         [HttpPost("createItem/{itemType}")]
         [Authorize(Policy = "EmployeeOrAdmin")]
         public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO createItemDTO)
@@ -423,67 +325,6 @@ namespace WebApplication1.Controllers
             return BadRequest("Invalid request");
         }
 
-        [HttpDelete("deleteImage")]
-        [Authorize(Policy = "AdminOnly")]
-        public IActionResult DeleteImage(
-            [FromQuery] Guid? guid = null,
-            [FromQuery] int? index = null)
-        {
-            try
-            {
-                // Validate that both guid and index are provided
-                if (!guid.HasValue || !index.HasValue)
-                {
-                    return BadRequest("Both GUID and index must be provided");
-                }
-
-                IQueryable<Item> itemsToDelete = _dbContext.Items;
-
-                // Apply filters based on query parameters
-                if (guid.HasValue)
-                {
-                    itemsToDelete = itemsToDelete.Where(item => item.GUID == guid.Value);
-                }
-
-                // Execute the query to get the items to delete
-                var items = itemsToDelete.ToList();
-
-                if (items.Count == 0)
-                {
-                    return NotFound("No items found for the specified criteria");
-                }
-
-                foreach (var item in items)
-                {
-                    if (index.HasValue && index != -1)
-                    {
-                        // Soft delete additional image by writing "deletedimage" to the URL
-                        if (item.AdditionalImageUrls != null && index >= 0 && index < item.AdditionalImageUrls.Count)
-                        {
-                            item.AdditionalImageUrls[index.Value] = "deletedimage";
-                        }
-                    }
-                    else
-                    {
-                        // Soft delete the title image by writing "deletedimage" to the URL
-                        if (!string.IsNullOrEmpty(item.TitleImageUrl))
-                        {
-                            item.TitleImageUrl = "deletedimage";
-                        }
-                    }
-                }
-
-                // Save changes to the database
-                _dbContext.SaveChanges();
-
-                return Ok("Images soft deleted successfully");
-            }
-            catch (Exception)
-            {
-                // Log the exception
-                return StatusCode(500, "Internal Server Error");
-            }
-        }
 
         [HttpDelete("deleteItem/{guid}")]
         [Authorize(Policy = "AdminOnly")]
