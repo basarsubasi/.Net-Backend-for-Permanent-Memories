@@ -9,10 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAnyOrigin",
-        builder => builder.AllowAnyOrigin()// Adjust the origin to match your Blazor app
+    options.AddPolicy("AllowFrontendOrigin",
+        builder => builder.WithOrigins("http://localhost:3000")
                           .AllowAnyHeader()
-                          .AllowAnyMethod());
+                          .AllowAnyMethod()
+                          .AllowCredentials());
+
 });
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -76,7 +78,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowAnyOrigin");
+app.UseCors("AllowFrontendOrigin");
 app.UseHttpsRedirection();
 app.UseRouting();
 
