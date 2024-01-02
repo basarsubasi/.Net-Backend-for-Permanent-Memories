@@ -19,7 +19,6 @@ namespace WebApplication1.Data
             // Price and availability
             builder.Property(c => c.Price).IsRequired();
             builder.Property(c => c.Brand).IsRequired();
-            builder.Property(c => c.ItemBrandId).IsRequired();
             builder.Property(c => c.IsAvailable).IsRequired();
             builder.Property(c => c.ItemType).IsRequired();
             builder.Property(c => c.TitleImageUrl).IsRequired();
@@ -40,7 +39,6 @@ namespace WebApplication1.Data
                     Quantity = 100,
                     Price = 499.99m,
                     Brand = "Canon",
-                    ItemBrandId = ItemBrandId.canon,
                     IsAvailable = true,
                     ItemType = ItemType.Camera,
                     TitleImageUrl = "https://example.com/canon_eos_rebel_t7.jpg",

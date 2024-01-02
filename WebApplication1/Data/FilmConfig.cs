@@ -24,7 +24,6 @@ namespace WebApplication1.Data
     
             builder.Property(f => f.Price).IsRequired().HasColumnType("decimal(18, 2)");
             builder.Property(f => f.Brand).IsRequired();
-            builder.Property(f => f.ItemBrandId).IsRequired();
             builder.Property(f => f.IsAvailable).IsRequired();
             builder.Property(f => f.ItemType).IsRequired();
             builder.Property(f => f.TitleImageUrl).IsRequired();
@@ -48,7 +47,6 @@ namespace WebApplication1.Data
                     Quantity = 400,
                     Price = 10.99m,
                     Brand = "Kodak",
-                    ItemBrandId = ItemBrandId.kodak,
                     ItemType = ItemType.Film,
                     IsAvailable = true,
                     TitleImageUrl = "https://www.bhphotovideo.com/images/images2500x2500/kodak_6031678_portra_400_color_negative_35mm_1038169.jpg",
