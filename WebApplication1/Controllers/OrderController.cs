@@ -66,6 +66,10 @@ public IActionResult ListOrders([FromQuery] OrderFilterDto filter)
     {
         var query = _dbContext.Orders.AsQueryable();
 
+{    if (filter.OrderId.HasValue && Guid.TryParse(filter.OrderId.Value.ToString(), out Guid parsedOrderId))
+        {
+            query = query.Where(o => o.OrderId == parsedOrderId);
+        }
         // Filter by UserName if provided
         if (!string.IsNullOrWhiteSpace(filter.UserName))
         {
@@ -105,6 +109,8 @@ public IActionResult ListOrders([FromQuery] OrderFilterDto filter)
 
         return Ok(orders);
     }
+    }
+
     catch (Exception ex)
     {
         // Log the exception
