@@ -1,11 +1,7 @@
-// Models/Film.cs
-using System;
-using WebApplication1.Data;
+
+
 using WebApplication1.Enums.FilmEnums;
-using WebApplication1.Models.ItemRelatedModels;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using System.ComponentModel.DataAnnotations.Schema;
+
 
 
 namespace WebApplication1.Models.ItemRelatedModels

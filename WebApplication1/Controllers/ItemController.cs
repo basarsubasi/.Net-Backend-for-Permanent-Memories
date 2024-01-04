@@ -315,6 +315,50 @@ namespace WebApplication1.Controllers
             return BadRequest("Invalid request");
         }
 
+        [HttpPost("reduceStockAfterPurchase/{guid}")]
+        [AllowAnonymous]
+public IActionResult PurchaseItem(Guid guid, [FromBody] int quantityToPurchase)
+{
+    try
+    {
+        var itemToPurchase = _dbContext.Items.FirstOrDefault(item => item.GUID == guid);
+
+        if (itemToPurchase == null)
+        {
+            return NotFound($"Item with GUID {guid} not found");
+        }
+
+        if (quantityToPurchase <= 0)
+        {
+            return BadRequest("Quantity to purchase must be greater than zero");
+        }
+
+        if (itemToPurchase.Quantity < quantityToPurchase)
+        {
+            return BadRequest("Insufficient item quantity available");
+        }
+
+        // Reduce the item's quantity
+        itemToPurchase.Quantity -= quantityToPurchase;
+
+        // Check if the item's quantity is now zero and update its availability
+        if (itemToPurchase.Quantity == 0)
+        {
+            itemToPurchase.IsAvailable = false;
+        }
+
+        _dbContext.SaveChanges();
+
+        return Ok($"Purchase successful. Remaining quantity of item: {itemToPurchase.Quantity}");
+    }
+    catch (Exception ex)
+    {
+        // Log the exception (add appropriate logging here)
+        return StatusCode(500, $"Internal Server Error: {ex.Message}");
+    }
+}
+
+
 
         [HttpDelete("deleteItem/{guid}")]
         [Authorize(Policy = "AdminOnly")]

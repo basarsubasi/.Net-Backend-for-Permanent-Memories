@@ -28,6 +28,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AppDbContextConnection"));
 });
 
+builder.Services.AddDbContext<OrderDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("OrderDbContextConnection"))); // Replace with your actual connection string
+
 // Add DbContext specifically for Identity
 builder.Services.AddDbContext<IdentityAppDbContext>(options =>
 {

@@ -1,10 +1,6 @@
-using System;
-using WebApplication1.Data;
+
 using WebApplication1.Enums.CameraEnums;
-using WebApplication1.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using System.ComponentModel.DataAnnotations.Schema;
+
 
 
 namespace WebApplication1.Models.ItemRelatedModels
