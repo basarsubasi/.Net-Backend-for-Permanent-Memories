@@ -6,8 +6,10 @@ namespace WebApplication1.Models
         public Guid OrderId { get; set; } // Unique order number
         public string? UserName { get; set; } // Name of the user placing the order
         public decimal TotalPrice { get; set; } // Total price of the order
-         public OrderStatus Status { get; set; } = OrderStatus.Pending; // Default status is Pending
+        public OrderStatus Status { get; set; } = OrderStatus.Pending; // Default status is Pending
         public List<OrderItem>? Items { get; set; } // Items in the order
+        public DateTime DatePlaced { get; set; } = DateTime.UtcNow; // Date and time when the order was placed
+
         // Add other relevant properties like OrderDate, Status, etc.
     }
 

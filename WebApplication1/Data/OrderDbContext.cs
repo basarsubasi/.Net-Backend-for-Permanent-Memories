@@ -24,7 +24,8 @@ public class OrderDbContext : DbContext
         modelBuilder.Entity<Order>()
             .HasMany(o => o.Items)
             .WithOne() // Assuming no navigation property back to Order in OrderItem
-            .HasForeignKey("OrderId"); // Replace with the actual foreign key property name if different
+            .HasForeignKey("OrderId") // Replace with the actual foreign key property name if different
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 }
