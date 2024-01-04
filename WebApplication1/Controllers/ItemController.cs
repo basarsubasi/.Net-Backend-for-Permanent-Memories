@@ -197,7 +197,6 @@ namespace WebApplication1.Controllers
                 {
                     cameraToUpdate.CameraFocalLength = editItemDTO.CameraDetails.CameraFocalLength;
                     cameraToUpdate.CameraMaxShutterSpeed = editItemDTO.CameraDetails.CameraMaxShutterSpeed;
-                    cameraToUpdate.CameraMegapixel = editItemDTO.CameraDetails.CameraMegapixel;
                     cameraToUpdate.CameraFilmFormat = editItemDTO.CameraDetails.CameraFilmFormat;
                 }
 
@@ -281,7 +280,6 @@ namespace WebApplication1.Controllers
                                     AdditionalImageUrls = cameraItemDetails.AdditionalImageUrls ?? new List<string>(),
                                     CameraFocalLength = cameraDetails.CameraFocalLength,
                                     CameraMaxShutterSpeed = cameraDetails.CameraMaxShutterSpeed,
-                                    CameraMegapixel = cameraDetails.CameraMegapixel,
                                     CameraFilmFormat = cameraDetails.CameraFilmFormat
 
                                     // Set other camera properties as needed
