@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models; // Replace with your actual namespace
 using WebApplication1.Data; // Replace with the namespace of your OrderDbContext
 using WebApplication1.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,6 +16,7 @@ public class OrderController : ControllerBase
     }
 
    [HttpPost("createOrder")]
+   [Authorize]
 public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
 {
     try
@@ -25,12 +27,13 @@ public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
         var order = new Order
         {
             OrderId = Guid.NewGuid(),
-            UserId = orderDto.UserId,
             TotalPrice = orderDto.TotalPrice,
             Status = orderDto.Status,
             // Use the non-null items list here
             Items = items.Select(i => new OrderItem
+
             {
+                OrderedItemGUID = Guid.NewGuid(),
                 OriginalItemGUID = i.OriginalItemGUID,
                 Title = i.Title,
                 TitleImageUrl = i.TitleImageUrl,

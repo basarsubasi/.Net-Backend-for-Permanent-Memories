@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace WebApplication1.Migrations
+namespace WebApplication1.Migrations.IdentityAppDb
 {
     [DbContext(typeof(IdentityAppDbContext))]
     partial class IdentityAppDbContextModelSnapshot : ModelSnapshot

@@ -17,8 +17,6 @@ public class OrderDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
-        modelBuilder.Entity<OrderItem>()
-        .HasKey(oi => oi.OriginalItemGUID);
         
         base.OnModelCreating(modelBuilder);
         // Define relationships and any configuration here

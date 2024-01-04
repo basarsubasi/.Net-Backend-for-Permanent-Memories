@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
 #nullable disable
 
-namespace WebApplication1.Migrations.OrderDb
+namespace WebApplication1.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
-    [Migration("20240104045021_OrderMigration1")]
-    partial class OrderMigration1
+    partial class OrderDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +34,6 @@ namespace WebApplication1.Migrations.OrderDb
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("UserName")
                         .HasColumnType("nvarchar(max)");
 
@@ -50,12 +44,15 @@ namespace WebApplication1.Migrations.OrderDb
 
             modelBuilder.Entity("WebApplication1.Models.OrderItem", b =>
                 {
-                    b.Property<Guid>("OriginalItemGUID")
+                    b.Property<Guid>("OrderedItemGUID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OriginalItemGUID")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -69,7 +66,7 @@ namespace WebApplication1.Migrations.OrderDb
                     b.Property<string>("TitleImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("OriginalItemGUID");
+                    b.HasKey("OrderedItemGUID");
 
                     b.HasIndex("OrderId");
 

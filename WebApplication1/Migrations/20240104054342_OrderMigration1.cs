@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace WebApplication1.Migrations.OrderDb
+namespace WebApplication1.Migrations
 {
     /// <inheritdoc />
     public partial class OrderMigration1 : Migration
@@ -16,7 +16,6 @@ namespace WebApplication1.Migrations.OrderDb
                 columns: table => new
                 {
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
@@ -30,7 +29,8 @@ namespace WebApplication1.Migrations.OrderDb
                 name: "OrderItems",
                 columns: table => new
                 {
-                    OriginalItemGUID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderedItemGUID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OriginalItemGUID = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TitleImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     QuantityToPurchase = table.Column<int>(type: "int", nullable: false),
@@ -39,7 +39,7 @@ namespace WebApplication1.Migrations.OrderDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItems", x => x.OriginalItemGUID);
+                    table.PrimaryKey("PK_OrderItems", x => x.OrderedItemGUID);
                     table.ForeignKey(
                         name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
