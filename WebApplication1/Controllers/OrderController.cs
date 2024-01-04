@@ -113,6 +113,38 @@ public IActionResult ListOrders([FromQuery] OrderFilterDto filter)
 }
 
 
+[HttpGet("listUserOrders")]
+[Authorize]
+public IActionResult ListUserOrders([FromQuery] string userGuid)
+{
+    try
+    {
+        var query = _dbContext.Orders.AsQueryable();
+
+        // Filter by UserGUID
+        query = query.Where(o => o.UserGUID == userGuid);
+
+        // Add other filters and sorting logic as needed here...
+
+        var orders = query.ToList();
+
+        // Check if any orders are found
+        if (!orders.Any())
+        {
+            return NotFound("No orders found for the specified user.");
+        }
+
+        return Ok(orders);
+    }
+    catch (Exception ex)
+    {
+        // Log the exception
+        return StatusCode(500, "Internal Server Error: " + ex.Message);
+    }
+}
+
+
+
 [HttpGet("getOrder/{OrderId}")]
 [Authorize]
 public IActionResult GetOrder(Guid OrderId)
