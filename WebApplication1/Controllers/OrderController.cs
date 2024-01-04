@@ -27,6 +27,7 @@ public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
         var order = new Order
         {
             OrderId = Guid.NewGuid(),
+            UserName = orderDto.UserName,
             TotalPrice = orderDto.TotalPrice,
             Status = orderDto.Status,
             // Use the non-null items list here
