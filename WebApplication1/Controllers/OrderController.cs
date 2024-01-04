@@ -28,6 +28,7 @@ public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
         var order = new Order
         {
             OrderId = Guid.NewGuid(),
+            UserGUID = orderDto.UserGUID,
             DatePlaced = DateTime.UtcNow,
             UserName = orderDto.UserName,
             TotalPrice = orderDto.TotalPrice,

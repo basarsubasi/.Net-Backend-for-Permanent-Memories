@@ -4,6 +4,7 @@ namespace WebApplication1.Models
     public class Order
     {
         public Guid OrderId { get; set; } // Unique order number
+        public string? UserGUID { get; set; } // Email of the user placing the order
         public string? UserName { get; set; } // Name of the user placing the order
         public decimal TotalPrice { get; set; } // Total price of the order
         public OrderStatus Status { get; set; } = OrderStatus.Pending; // Default status is Pending
