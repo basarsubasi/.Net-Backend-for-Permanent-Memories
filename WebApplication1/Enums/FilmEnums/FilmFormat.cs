@@ -3,7 +3,7 @@ namespace WebApplication1.Enums.FilmEnums
 {
     public enum FilmFormat
     {
-        _35mm = 035,
+        _35mm = 35,
         _120mm = 120
         // Add more film types as needed
     }
