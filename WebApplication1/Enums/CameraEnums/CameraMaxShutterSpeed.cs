@@ -4,6 +4,7 @@ namespace WebApplication1.Enums.CameraEnums
     public enum CameraMaxShutterSpeed
     {
         ShutterSpeed1_100 = 100,
+        ShutterSpeed1_120 = 120,
         ShutterSpeed1_250 = 250,
         ShutterSpeed1_500 = 500,
         ShutterSpeed1_1000 = 1000,
