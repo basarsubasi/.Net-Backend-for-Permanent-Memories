@@ -20,6 +20,152 @@ namespace WebApplication1.Controllers
             _dbContext = dbContext;
         }
 
+
+
+        [HttpPost("createItem/{itemType}")]
+        [Authorize(Policy = "EmployeeOrAdmin")]
+        public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO createItemDTO)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                // Parse the itemType string to ItemType enum
+                if (Enum.TryParse(itemType, true, out ItemType parsedItemType))
+                {
+                    switch (parsedItemType)
+                    {
+                        case ItemType.Film:
+                            var filmDetails = createItemDTO.FilmDetails;
+                            var filmItemDetails = createItemDTO.ItemDetails;
+
+                            if (filmDetails != null)
+                            {
+                                var newFilm = new Film
+                                {
+                                    Title = filmItemDetails.Title ?? "Default Title",
+                                    Description = filmItemDetails.Description ?? "Default Description",
+                                    Quantity = filmItemDetails.Quantity > 0 ? filmItemDetails.Quantity : 1,
+                                    Price = filmItemDetails.Price > 0 ? filmItemDetails.Price : 0.0m,
+                                    Brand = filmItemDetails.Brand ?? "Default Brand",
+                                    IsAvailable = filmItemDetails.IsAvailable,
+                                    ItemType = filmItemDetails.ItemType = ItemType.Film,
+                                    TitleImageUrl = filmItemDetails.TitleImageUrl ?? "Default Title Image URL",
+                                    AdditionalImageUrls = filmItemDetails.AdditionalImageUrls ?? new List<string>(),
+                                    FilmColorState = filmDetails.FilmColorState,
+                                    FilmFormat = filmDetails.FilmFormat,
+                                    FilmISO = filmDetails.FilmISO,
+                                    FilmExposure = filmDetails.FilmExposure
+
+                                    // Set other film properties as needed
+                                };
+
+                                // Add the new film to the database
+                                _dbContext.Items.Add(newFilm);
+                                _dbContext.SaveChanges();
+
+                                return Ok("Film created successfully");
+                            }
+                            break;
+
+                        case ItemType.Camera:
+                            var cameraDetails = createItemDTO.CameraDetails;
+                            var cameraItemDetails = createItemDTO.ItemDetails;
+
+                            if (cameraDetails != null)
+                            {
+                                var newCamera = new Camera
+                                {
+                                    Title = cameraItemDetails.Title ?? "Default Title",
+                                    Description = cameraItemDetails.Description ?? "Default Description",
+                                    Quantity = cameraItemDetails.Quantity > 0 ? cameraItemDetails.Quantity : 1,
+                                    Price = cameraItemDetails.Price > 0 ? cameraItemDetails.Price : 0.0m,
+                                    Brand = cameraItemDetails.Brand ?? "Default Brand",
+                                    IsAvailable = cameraItemDetails.IsAvailable,
+                                    ItemType = cameraItemDetails.ItemType = ItemType.Camera,
+                                    TitleImageUrl = cameraItemDetails.TitleImageUrl ?? "Default Title Image URL",
+                                    AdditionalImageUrls = cameraItemDetails.AdditionalImageUrls ?? new List<string>(),
+                                    CameraFocalLength = cameraDetails.CameraFocalLength,
+                                    CameraMaxShutterSpeed = cameraDetails.CameraMaxShutterSpeed,
+                                    CameraFilmFormat = cameraDetails.CameraFilmFormat
+
+                                    // Set other camera properties as needed
+                                };
+
+                                // Add the new camera to the database
+                                _dbContext.Items.Add(newCamera);
+                                _dbContext.SaveChanges();
+
+                                return Ok("Camera created successfully");
+                            }
+                            break;
+
+                        // Add cases for other item types as needed
+
+                        default:
+                            return BadRequest("Unsupported item type");
+                    }
+                }
+                else
+                {
+                    return BadRequest("Invalid item type");
+                }
+            }
+            catch (Exception)
+            {
+                // Log the exception
+                return StatusCode(500, "Internal Server Error");
+            }
+
+            return BadRequest("Invalid request");
+        }
+
+        [HttpPost("reduceStockAfterPurchase/{guid}")]
+        [AllowAnonymous]
+public IActionResult PurchaseItem(Guid guid, [FromBody] int quantityToPurchase)
+{
+    try
+    {
+        var itemToPurchase = _dbContext.Items.FirstOrDefault(item => item.GUID == guid);
+
+        if (itemToPurchase == null)
+        {
+            return NotFound($"Item with GUID {guid} not found");
+        }
+
+        if (quantityToPurchase <= 0)
+        {
+            return BadRequest("Quantity to purchase must be greater than zero");
+        }
+
+        if (itemToPurchase.Quantity < quantityToPurchase)
+        {
+            return BadRequest("Insufficient item quantity available");
+        }
+
+        // Reduce the item's quantity
+        itemToPurchase.Quantity -= quantityToPurchase;
+
+        // Check if the item's quantity is now zero and update its availability
+        if (itemToPurchase.Quantity == 0)
+        {
+            itemToPurchase.IsAvailable = false;
+        }
+
+        _dbContext.SaveChanges();
+
+        return Ok($"Purchase successful. Remaining quantity of item: {itemToPurchase.Quantity}");
+    }
+    catch (Exception ex)
+    {
+        // Log the exception (add appropriate logging here)
+        return StatusCode(500, $"Internal Server Error: {ex.Message}");
+    }
+}
+
         [HttpGet("searchItems")]
         [AllowAnonymous]
         public async Task<IActionResult> SearchItems(
@@ -212,149 +358,7 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpPost("createItem/{itemType}")]
-        [Authorize(Policy = "EmployeeOrAdmin")]
-        public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO createItemDTO)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                // Parse the itemType string to ItemType enum
-                if (Enum.TryParse(itemType, true, out ItemType parsedItemType))
-                {
-                    switch (parsedItemType)
-                    {
-                        case ItemType.Film:
-                            var filmDetails = createItemDTO.FilmDetails;
-                            var filmItemDetails = createItemDTO.ItemDetails;
-
-                            if (filmDetails != null)
-                            {
-                                var newFilm = new Film
-                                {
-                                    Title = filmItemDetails.Title ?? "Default Title",
-                                    Description = filmItemDetails.Description ?? "Default Description",
-                                    Quantity = filmItemDetails.Quantity > 0 ? filmItemDetails.Quantity : 1,
-                                    Price = filmItemDetails.Price > 0 ? filmItemDetails.Price : 0.0m,
-                                    Brand = filmItemDetails.Brand ?? "Default Brand",
-                                    IsAvailable = filmItemDetails.IsAvailable,
-                                    ItemType = filmItemDetails.ItemType = ItemType.Film,
-                                    TitleImageUrl = filmItemDetails.TitleImageUrl ?? "Default Title Image URL",
-                                    AdditionalImageUrls = filmItemDetails.AdditionalImageUrls ?? new List<string>(),
-                                    FilmColorState = filmDetails.FilmColorState,
-                                    FilmFormat = filmDetails.FilmFormat,
-                                    FilmISO = filmDetails.FilmISO,
-                                    FilmExposure = filmDetails.FilmExposure
-
-                                    // Set other film properties as needed
-                                };
-
-                                // Add the new film to the database
-                                _dbContext.Items.Add(newFilm);
-                                _dbContext.SaveChanges();
-
-                                return Ok("Film created successfully");
-                            }
-                            break;
-
-                        case ItemType.Camera:
-                            var cameraDetails = createItemDTO.CameraDetails;
-                            var cameraItemDetails = createItemDTO.ItemDetails;
-
-                            if (cameraDetails != null)
-                            {
-                                var newCamera = new Camera
-                                {
-                                    Title = cameraItemDetails.Title ?? "Default Title",
-                                    Description = cameraItemDetails.Description ?? "Default Description",
-                                    Quantity = cameraItemDetails.Quantity > 0 ? cameraItemDetails.Quantity : 1,
-                                    Price = cameraItemDetails.Price > 0 ? cameraItemDetails.Price : 0.0m,
-                                    Brand = cameraItemDetails.Brand ?? "Default Brand",
-                                    IsAvailable = cameraItemDetails.IsAvailable,
-                                    ItemType = cameraItemDetails.ItemType = ItemType.Camera,
-                                    TitleImageUrl = cameraItemDetails.TitleImageUrl ?? "Default Title Image URL",
-                                    AdditionalImageUrls = cameraItemDetails.AdditionalImageUrls ?? new List<string>(),
-                                    CameraFocalLength = cameraDetails.CameraFocalLength,
-                                    CameraMaxShutterSpeed = cameraDetails.CameraMaxShutterSpeed,
-                                    CameraFilmFormat = cameraDetails.CameraFilmFormat
-
-                                    // Set other camera properties as needed
-                                };
-
-                                // Add the new camera to the database
-                                _dbContext.Items.Add(newCamera);
-                                _dbContext.SaveChanges();
-
-                                return Ok("Camera created successfully");
-                            }
-                            break;
-
-                        // Add cases for other item types as needed
-
-                        default:
-                            return BadRequest("Unsupported item type");
-                    }
-                }
-                else
-                {
-                    return BadRequest("Invalid item type");
-                }
-            }
-            catch (Exception)
-            {
-                // Log the exception
-                return StatusCode(500, "Internal Server Error");
-            }
-
-            return BadRequest("Invalid request");
-        }
-
-        [HttpPost("reduceStockAfterPurchase/{guid}")]
-        [AllowAnonymous]
-public IActionResult PurchaseItem(Guid guid, [FromBody] int quantityToPurchase)
-{
-    try
-    {
-        var itemToPurchase = _dbContext.Items.FirstOrDefault(item => item.GUID == guid);
-
-        if (itemToPurchase == null)
-        {
-            return NotFound($"Item with GUID {guid} not found");
-        }
-
-        if (quantityToPurchase <= 0)
-        {
-            return BadRequest("Quantity to purchase must be greater than zero");
-        }
-
-        if (itemToPurchase.Quantity < quantityToPurchase)
-        {
-            return BadRequest("Insufficient item quantity available");
-        }
-
-        // Reduce the item's quantity
-        itemToPurchase.Quantity -= quantityToPurchase;
-
-        // Check if the item's quantity is now zero and update its availability
-        if (itemToPurchase.Quantity == 0)
-        {
-            itemToPurchase.IsAvailable = false;
-        }
-
-        _dbContext.SaveChanges();
-
-        return Ok($"Purchase successful. Remaining quantity of item: {itemToPurchase.Quantity}");
-    }
-    catch (Exception ex)
-    {
-        // Log the exception (add appropriate logging here)
-        return StatusCode(500, $"Internal Server Error: {ex.Message}");
-    }
-}
+        
 
 
 

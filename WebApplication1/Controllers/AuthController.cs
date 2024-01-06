@@ -146,31 +146,7 @@ public async Task<IActionResult> Logout()
 }
 
 
-[HttpDelete("deleteUsers/{userId}")]
-[Authorize(Policy = "AdminOnly")]
-public async Task<IActionResult> DeleteUser(string userId)
-{
-    if (Guid.TryParse(userId, out Guid userGuid))
-    {
-        var user = await _userManager.FindByIdAsync(userGuid.ToString());
 
-        if (user != null)
-        {
-            var result = await _userManager.DeleteAsync(user);
-
-            if (result.Succeeded)
-            {
-                return Ok(new { Message = "User deleted successfully" });
-            }
-
-            return BadRequest(result.Errors);
-        }
-
-        return BadRequest("User not found");
-    }
-
-    return BadRequest("Invalid user ID format");
-}
 
 // Modify the existing action in your AuthController
 [HttpGet("GetUsers")]
@@ -220,11 +196,34 @@ public IActionResult ListUsers([FromQuery] string role)
 
         return Ok(customerList);
     }
+
+
+    
+    [HttpDelete("deleteUsers/{userId}")]
+[Authorize(Policy = "AdminOnly")]
+public async Task<IActionResult> DeleteUser(string userId)
+{
+    if (Guid.TryParse(userId, out Guid userGuid))
+    {
+        var user = await _userManager.FindByIdAsync(userGuid.ToString());
+
+        if (user != null)
+        {
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok(new { Message = "User deleted successfully" });
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        return BadRequest("User not found");
+    }
+
+    return BadRequest("Invalid user ID format");
 }
-
-
-
-
-
+}
 }
 

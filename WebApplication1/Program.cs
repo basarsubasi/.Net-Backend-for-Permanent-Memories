@@ -52,7 +52,20 @@ builder.Services.AddAuthorization(options =>
     
 });
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { 
+    Title = "WebApplication1", 
+    Version = "v1",
+    Description = "My WebAPI",
+    Contact = new Microsoft.OpenApi.Models.OpenApiContact
+    {
+        Name = "Başar SUBAŞI",
+        Email = "basarsubasi@gmail.com",  
+    }
+    });
+     
+});
 
 var app = builder.Build();
 
