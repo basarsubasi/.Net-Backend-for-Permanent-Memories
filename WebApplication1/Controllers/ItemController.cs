@@ -383,37 +383,8 @@ public IActionResult PurchaseItem(Guid guid, [FromBody] int quantityToPurchase)
             }
         }
 
-
-[HttpDelete("deleteAllItems")]
-[Authorize(Policy = "AdminOnly")]
-
-public IActionResult DeleteAllItems()
-{
-    try
-    {
-        var itemsToDelete = _dbContext.Items.ToList();
-
-        if (itemsToDelete.Count == 0)
-        {
-            return NotFound("No items found to delete");
-        }
-
-        _dbContext.Items.RemoveRange(itemsToDelete);
-        _dbContext.SaveChanges();
-
-        return Ok("All items deleted successfully");
-    }
-    catch (Exception)
-    {
-        // Log the exception
-        return StatusCode(500, "Internal Server Error");
     }
 }
-
-
-    }
-}
-
 
 
 
