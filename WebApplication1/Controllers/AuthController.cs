@@ -177,25 +177,6 @@ public IActionResult ListUsers([FromQuery] string role)
     return Ok(users);
 }
 
- [HttpGet("GetCustomers")]
- [Authorize(Policy = "EmployeeOrAdmin")]
- 
-    public IActionResult GetCustomers()
-    {
-        // Retrieve users with the "Customer" role
-        var customers = _userManager.GetUsersInRoleAsync("Customer").Result;
-
-        // You may want to project the user information or perform additional processing here
-        var customerList = customers.Select(user => new
-        {
-            UserId = user.Id,
-            UserName = user.UserName,
-            Email = user.Email
-            // Add other properties as needed
-        }).ToList();
-
-        return Ok(customerList);
-    }
 
 
     

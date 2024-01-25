@@ -23,7 +23,7 @@ namespace WebApplication1.Controllers
 
 
         [HttpPost("createItem/{itemType}")]
-        [Authorize(Policy = "EmployeeOrAdmin")]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult CreateItem(string itemType, [FromBody] CreateItemDTO createItemDTO)
         {
             try
@@ -122,6 +122,9 @@ namespace WebApplication1.Controllers
 
             return BadRequest("Invalid request");
         }
+
+
+
 
         [HttpPost("reduceStockAfterPurchase/{guid}")]
         [AllowAnonymous]

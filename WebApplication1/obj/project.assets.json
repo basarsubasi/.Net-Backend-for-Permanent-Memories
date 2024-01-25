@@ -6836,11 +6836,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\basar\\Desktop\\asd\\WebApplication1-2\\WebApplication1\\WebApplication1.csproj",
+      "projectUniqueName": "C:\\Users\\basar\\Desktop\\Basar_Subasi_Proje_Kaynak_Kod\\WebApplication1-2\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "C:\\Users\\basar\\Desktop\\asd\\WebApplication1-2\\WebApplication1\\WebApplication1.csproj",
+      "projectPath": "C:\\Users\\basar\\Desktop\\Basar_Subasi_Proje_Kaynak_Kod\\WebApplication1-2\\WebApplication1\\WebApplication1.csproj",
       "packagesPath": "C:\\Users\\basar\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\basar\\Desktop\\asd\\WebApplication1-2\\WebApplication1\\obj\\",
+      "outputPath": "C:\\Users\\basar\\Desktop\\Basar_Subasi_Proje_Kaynak_Kod\\WebApplication1-2\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\basar\\AppData\\Roaming\\NuGet\\NuGet.Config",
